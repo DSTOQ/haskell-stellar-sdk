@@ -140,7 +140,9 @@ genSequenceNumber :: Gen SequenceNumber
 genSequenceNumber = SequenceNumber <$> Gen.expInt64
 
 genTimeBounds :: Gen TimeBounds
-genTimeBounds = TimeBounds <$> Gen.expWord64 <*> Gen.maybe Gen.expWord64
+genTimeBounds = TimeBounds
+  <$> Gen.expWord64
+  <*> Gen.maybe (Gen.filter (> 0) $ Gen.word64 Range.exponentialBounded)
 
 genHash :: Gen Hash
 genHash = Hash <$> Gen.word256 Range.exponentialBounded

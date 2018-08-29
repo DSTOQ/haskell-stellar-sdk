@@ -487,13 +487,16 @@ instance Binary AccountOperation where
 
 data TimeBounds
   = TimeBounds
-  { timeBoundsMinTime :: Word64
-  , timeBoundsMaxTime :: Maybe Word64 -- 0 here means no maxTime
+  { minTime :: Word64
+  , maxTime :: Maybe Word64 -- 0 here means no maxTime
   } deriving (Eq, Show)
 
 instance Binary TimeBounds where
-  get = TimeBounds <$> get <*> fmap unPadded get
-  put (TimeBounds mn mx) = put mn >> put (Padded mx)
+  get = do
+    mn <- get
+    mx <- get
+    pure $ TimeBounds mn $ if mx == 0 then Nothing else Just mx
+  put (TimeBounds mn mx) = put mn >> put (fromMaybe 0 mx)
 
 
 data Transaction
