@@ -58,7 +58,6 @@ import           Data.Binary.Extended
 import           Data.Binary.Get      (Get)
 import           Data.ByteString      as BS
 import           Data.LargeWord       (Word256, Word96)
-import           Data.List.NonEmpty   (NonEmpty)
 import           Data.Word            (Word32)
 import           Protolude            hiding (get, put)
 import           Stellar.Internal
@@ -270,7 +269,7 @@ data PathPaymentOp
   , destination :: PublicKey
   , destAsset   :: Asset
   , destAmount  :: Int64
-  , path        :: [Asset]
+  , path        :: VarLen 5 [Asset]
   } deriving (Eq, Show, Generic)
 
 instance Binary PathPaymentOp
@@ -513,7 +512,7 @@ data Transaction
   , seqNum        :: SequenceNumber
   , timeBounds    :: Maybe TimeBounds
   , memo          :: Memo
-  , operations    :: VarLen 100 (NonEmpty Operation)
+  , operations    :: VarLen 100 [Operation]
   } deriving (Eq, Show)
 
 instance Binary Transaction where
@@ -557,7 +556,7 @@ instance Binary DecoratedSignature
 data TransactionEnvelope
   = TransactionEnvelope
   { transaction :: Transaction
-  , signatures  :: [DecoratedSignature]
+  , signatures  :: VarLen 20 [DecoratedSignature]
   } deriving (Eq, Show, Generic)
 
 instance Binary TransactionEnvelope

@@ -179,7 +179,7 @@ genPathPaymentOp = PathPaymentOp
   <*> genPublicKey
   <*> genAsset
   <*> Gen.expInt64
-  <*> Gen.list (Range.linear 0 5) genAsset
+  <*> (VarLen <$> Gen.list (Range.linear 0 5) genAsset)
 
 genOfferId :: Gen OfferId
 genOfferId = OfferId <$> Gen.expWord64
@@ -277,7 +277,7 @@ genTransaction = Transaction
   <*> genSequenceNumber
   <*> Gen.maybe genTimeBounds
   <*> genMemo
-  <*> (VarLen <$> Gen.nonEmpty (Range.exponential 1 10) genOperation)
+  <*> (VarLen <$> Gen.list (Range.exponential 1 10) genOperation)
 
 genSignatureHint :: Gen SignatureHint
 genSignatureHint = SignatureHint <$> Gen.expWord32
@@ -293,4 +293,4 @@ genDecoratedSignature = DecoratedSignature
 genTransactionEnvelope :: Gen TransactionEnvelope
 genTransactionEnvelope = TransactionEnvelope
   <$> genTransaction
-  <*> Gen.list (Range.linear 0 3) genDecoratedSignature
+  <*> (VarLen <$> Gen.list (Range.linear 0 3) genDecoratedSignature)

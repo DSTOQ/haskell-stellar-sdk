@@ -7,8 +7,8 @@ import           Control.Monad        (fail)
 import           Data.Binary.Extended
 import           Data.Binary.Get      (getByteString, getWord32be, skip)
 import           Data.Binary.Put      (putWord32be)
-import           Data.ByteString      as BS
-import qualified Data.List.NonEmpty   as NE
+import qualified Data.ByteString      as BS
+import           Data.Foldable        (length)
 import           GHC.TypeLits
 import           Protolude            hiding (get, put)
 
@@ -34,16 +34,17 @@ instance KnownNat n => Binary (VarLen n Text) where
   put (VarLen t) = put (VarLen (toS t) :: VarLen n ByteString)
   get = get <&> \(VarLen bs :: VarLen n ByteString) -> VarLen (toS bs)
 
-instance (KnownNat n, Binary b) => Binary (VarLen n (NonEmpty b)) where
-  put (VarLen ne) = do
-    putWord32be $ fromIntegral $ NE.length ne
-    mapM_ put ne
+instance (KnownNat n, Binary b) => Binary (VarLen n [b]) where
+  put (VarLen bs) = do
+    putWord32be $ fromIntegral $ length bs
+    mapM_ put bs
   get = do
     len <- getWord32be <&> fromIntegral
     let cap = fromIntegral $ natVal (Proxy :: Proxy n)
     if len > cap
       then fail $ "Max length (" <> show cap <> ") exceeded (" <> show len <> ")"
-      else VarLen . NE.fromList <$> replicateM len get
+      else VarLen <$> replicateM len get
+
 
 newtype FixLen (n :: Nat) a
   = FixLen
