@@ -70,7 +70,8 @@ library:
   - largeword
   - semigroups
   exposed-modules:
-  - Stellar.Types
+  - Stellar
+  - Stellar.Internal
   - Data.Binary.Extended
 
 tests:

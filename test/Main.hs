@@ -11,7 +11,8 @@ import           Hedgehog
 import qualified Hedgehog.Gen.Extended as Gen
 import qualified Hedgehog.Range        as Range
 import           Protolude
-import           Stellar.Types
+import           Stellar
+import           Stellar.Internal
 import           System.Exit           (exitFailure)
 
 main :: IO ()
