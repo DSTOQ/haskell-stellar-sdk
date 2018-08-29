@@ -55,7 +55,8 @@ module Stellar
 
 import           Control.Monad        (fail)
 import           Data.Binary.Extended
-import           Data.Binary.Get      (Get)
+import           Data.Binary.Get      (Get, skip)
+import           Data.Binary.Put      (putWord32be)
 import           Data.ByteString      as BS
 import           Data.LargeWord       (Word256, Word96)
 import           Data.Word            (Word32)
@@ -523,6 +524,7 @@ instance Binary Transaction where
     tx & put . Padded . timeBounds
     tx & put . memo
     tx & put . operations
+    putWord32be 0 -- ext
   get = Transaction
     <$> get               -- sourceAccount
     <*> get               -- fee
@@ -530,7 +532,7 @@ instance Binary Transaction where
     <*> fmap unPadded get -- timeBounds
     <*> get               -- memo
     <*> get               -- operations
-
+    <*  skip 4 -- ext
 
 newtype SignatureHint
   = SignatureHint
