@@ -513,7 +513,7 @@ data Transaction
   , seqNum        :: SequenceNumber
   , timeBounds    :: Maybe TimeBounds
   , memo          :: Memo
-  , operations    :: NonEmpty Operation -- max 100
+  , operations    :: VarLen 100 (NonEmpty Operation)
   } deriving (Eq, Show)
 
 instance Binary Transaction where

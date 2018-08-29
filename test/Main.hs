@@ -82,7 +82,7 @@ roundtrip :: Checkable
 roundtrip = Checkable $ \gen -> property $ do
   v <- forAll gen
   let encoded = encode v
-  annotateShow encoded
+  annotateShow $ BL.unpack encoded
   case decodeOrFail encoded of
     Left (_, _, err) -> do
       annotate err
@@ -277,7 +277,7 @@ genTransaction = Transaction
   <*> genSequenceNumber
   <*> Gen.maybe genTimeBounds
   <*> genMemo
-  <*> Gen.nonEmpty (Range.exponential 1 10) genOperation
+  <*> (VarLen <$> Gen.nonEmpty (Range.exponential 1 10) genOperation)
 
 genSignatureHint :: Gen SignatureHint
 genSignatureHint = SignatureHint <$> Gen.expWord32
