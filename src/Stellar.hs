@@ -75,7 +75,12 @@ instance Binary PublicKeyType where
 newtype PublicKey
   = PublicKeyEd25519
   { unPublicKeyEd25519 :: Word256
-  } deriving (Eq, Show, Binary)
+  } deriving (Eq, Show)
+
+instance Binary PublicKey where
+  put pk = put PublicKeyTypeEd25519
+        >> put (unPublicKeyEd25519 pk)
+  get = get >>= \case PublicKeyTypeEd25519 -> PublicKeyEd25519 <$> get
 
 
 data SignerKeyType
@@ -250,9 +255,9 @@ instance Binary CreateAccountOp
 
 data PaymentOp
   = PaymentOp
-  { destination :: PublicKey -- recipient of the payment
-  , asset       :: Asset     -- what they end up with
-  , amount      :: Int64     -- amount they end up with
+  { destination :: PublicKey
+  , asset       :: Asset
+  , amount      :: Int64
   } deriving (Eq, Show, Generic)
 
 instance Binary PaymentOp
@@ -260,12 +265,12 @@ instance Binary PaymentOp
 
 data PathPaymentOp
   = PathPaymentOp
-  { sendAsset   :: Asset      -- asset we pay with
-  , sendMax     :: Int64      -- the maximum amount of sendAsset to send (excluding fees).
-  , destination :: PublicKey  -- recipient of the payment
-  , destAsset   :: Asset      -- what they end up with
-  , destAmount  :: Int64      -- amount they end up with
-  , path        :: [Asset]    -- additional hops it must go through to get there
+  { sendAsset   :: Asset
+  , sendMax     :: Int64
+  , destination :: PublicKey
+  , destAsset   :: Asset
+  , destAmount  :: Int64
+  , path        :: [Asset]
   } deriving (Eq, Show, Generic)
 
 instance Binary PathPaymentOp
@@ -282,7 +287,7 @@ data ManageOfferOp
   { selling :: Asset
   , buying  :: Asset
   , amount  :: Int64
-  , price   :: Price    -- price of thing being sold in terms of what you are buying
+  , price   :: Price
   , offerId :: OfferId
   } deriving (Eq, Show, Generic)
 
@@ -293,8 +298,8 @@ data CreatePassiveOfferOp
   = CreatePassiveOfferOp
   { selling :: Asset
   , buying  :: Asset
-  , amount  :: Int64    -- amount taker gets. if set to 0, delete the offer
-  , price   :: Price    -- price of thing being sold in terms of what you are buying
+  , amount  :: Int64
+  , price   :: Price
   } deriving (Eq, Show, Generic)
 
 instance Binary CreatePassiveOfferOp
@@ -482,7 +487,9 @@ instance Binary Operation where
   put op = do
     put $ Padded $ sourceAccount (op :: Operation)
     put $ body op
-  get = Operation <$> fmap unPadded get <*> get
+  get = Operation
+    <$> fmap unPadded get
+    <*> get
 
 
 data TimeBounds
