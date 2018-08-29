@@ -43,8 +43,8 @@ module Stellar
   , ManageDataOp (..)
   , OperationType (..)
   , operationType
+  , OperationBody (..)
   , Operation (..)
-  , AccountOperation (..)
   , TimeBounds (..)
   , Transaction (..)
   , SignatureHint (..)
@@ -411,7 +411,7 @@ instance Binary OperationType where
   get = getEnum
   put = putEnum
 
-operationType :: Operation -> OperationType
+operationType :: OperationBody -> OperationType
 operationType op = case op of
   CreateAccount _      -> OperationTypeCreateAccount
   Payment _            -> OperationTypePayment
@@ -426,7 +426,7 @@ operationType op = case op of
   ManageData _         -> OperationTypeManageData
   BumpSequence _       -> OperationTypeBumpSequence
 
-data Operation
+data OperationBody
   = CreateAccount CreateAccountOp
   | Payment PaymentOp
   | PathPayment PathPaymentOp
@@ -441,7 +441,7 @@ data Operation
   | BumpSequence SequenceNumber
   deriving (Eq, Show)
 
-instance Binary Operation where
+instance Binary OperationBody where
   put operation = do
     operation & put . operationType
     case operation of
@@ -472,17 +472,17 @@ instance Binary Operation where
     OperationTypeInflation          -> pure Inflation
 
 
-data AccountOperation
-  = AccountOperation
+data Operation
+  = Operation
   { sourceAccount :: Maybe PublicKey
-  , operation     :: Operation
+  , body          :: OperationBody
   } deriving (Eq, Show)
 
-instance Binary AccountOperation where
+instance Binary Operation where
   put op = do
-    put $ Padded $ sourceAccount (op :: AccountOperation)
-    put $ operation op
-  get = AccountOperation <$> fmap unPadded get <*> get
+    put $ Padded $ sourceAccount (op :: Operation)
+    put $ body op
+  get = Operation <$> fmap unPadded get <*> get
 
 
 data TimeBounds
@@ -506,7 +506,7 @@ data Transaction
   , seqNum        :: SequenceNumber
   , timeBounds    :: Maybe TimeBounds
   , memo          :: Memo
-  , operations    :: NonEmpty AccountOperation -- max 100
+  , operations    :: NonEmpty Operation -- max 100
   } deriving (Eq, Show)
 
 instance Binary Transaction where

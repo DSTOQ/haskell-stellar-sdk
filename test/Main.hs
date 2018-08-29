@@ -69,8 +69,8 @@ gens =
   , Genable ("DataValue",            genDataValue)
   , Genable ("ManageDataOp",         genManageDataOp)
   , Genable ("OperationType",        genOperationType)
+  , Genable ("OperationBody",        genOperationBody)
   , Genable ("Operation",            genOperation)
-  , Genable ("AccountOperation",     genAccountOperation)
   , Genable ("Transaction",          genTransaction)
   , Genable ("Signature",            genSignature)
   , Genable ("SignatureHint",        genSignatureHint)
@@ -249,8 +249,8 @@ genOperationType = Gen.element
   , OperationTypeBumpSequence
   ]
 
-genOperation :: Gen Operation
-genOperation = Gen.choice
+genOperationBody :: Gen OperationBody
+genOperationBody = Gen.choice
   [ CreateAccount <$> genCreateAccountOp
   , Payment <$> genPaymentOp
   , PathPayment <$> genPathPaymentOp
@@ -265,10 +265,10 @@ genOperation = Gen.choice
   , BumpSequence <$> genSequenceNumber
   ]
 
-genAccountOperation :: Gen AccountOperation
-genAccountOperation = AccountOperation
+genOperation :: Gen Operation
+genOperation = Operation
   <$> Gen.maybe genPublicKey
-  <*> genOperation
+  <*> genOperationBody
 
 genTransaction :: Gen Transaction
 genTransaction = Transaction
@@ -277,7 +277,7 @@ genTransaction = Transaction
   <*> genSequenceNumber
   <*> Gen.maybe genTimeBounds
   <*> genMemo
-  <*> Gen.nonEmpty (Range.exponential 1 10) genAccountOperation
+  <*> Gen.nonEmpty (Range.exponential 1 10) genOperation
 
 genSignatureHint :: Gen SignatureHint
 genSignatureHint = SignatureHint <$> Gen.expWord32
