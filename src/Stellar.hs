@@ -55,7 +55,7 @@ module Stellar
 
 import           Control.Monad        (fail)
 import           Data.Binary.Extended
-import           Data.Binary.Get      (Get, skip)
+import           Data.Binary.Get      (Get, label, skip)
 import           Data.Binary.Put      (putWord32be)
 import           Data.ByteString      as BS
 import           Data.LargeWord       (Word256, Word96)
@@ -68,7 +68,7 @@ data PublicKeyType
   deriving (Eq, Show, Enum, Bounded)
 
 instance Binary PublicKeyType where
-  get = getEnum
+  get = label "PublicKeyType" getEnum
   put = putEnum
 
 
@@ -80,7 +80,8 @@ newtype PublicKey
 instance Binary PublicKey where
   put pk = put PublicKeyTypeEd25519
         >> put (unPublicKeyEd25519 pk)
-  get = get >>= \case PublicKeyTypeEd25519 -> PublicKeyEd25519 <$> get
+  get = label "PublicKey"
+      $ get >>= \case PublicKeyTypeEd25519 -> PublicKeyEd25519 <$> get
 
 
 data SignerKeyType
@@ -90,7 +91,7 @@ data SignerKeyType
   deriving (Eq, Show, Enum, Bounded)
 
 instance Binary SignerKeyType where
-  get = getEnum
+  get = label "SignerKeyType" getEnum
   put = putEnum
 
 signerKeyType :: SignerKey -> SignerKeyType
@@ -107,7 +108,7 @@ data SignerKey
   deriving (Eq, Show)
 
 instance Binary SignerKey where
-  get = do
+  get = label "SignerKey" $ do
     kt <- get
     get <&> case kt of
       SignerKeyTypeEd25519   -> SignerKeyEd25519
@@ -121,19 +122,31 @@ instance Binary SignerKey where
 newtype Threshold
   = Threshold
   { unThreshold :: Word32
-  } deriving (Eq, Show, Binary)
+  } deriving (Eq, Show)
+
+instance Binary Threshold where
+  get = label "Threshold" $ Threshold <$> get
+  put = put . unThreshold
 
 
 newtype AssetCode4
   = AssetCode4
   { unAssetCode4 :: Word32
-  } deriving (Eq, Show, Binary)
+  } deriving (Eq, Show)
+
+instance Binary AssetCode4 where
+  get = label "AssetCode4" $ AssetCode4 <$> get
+  put = put . unAssetCode4
 
 
 newtype AssetCode12
   = AssetCode12
   { unAssetCode12 :: Word96
-  } deriving (Eq, Show, Binary)
+  } deriving (Eq, Show)
+
+instance Binary AssetCode12 where
+  get = label "AssetCode12" $ AssetCode12 <$> get
+  put = put . unAssetCode12
 
 
 data AssetType
@@ -143,7 +156,7 @@ data AssetType
   deriving (Eq, Show, Enum, Bounded)
 
 instance Binary AssetType where
-  get = getEnum
+  get = label "AssetType" getEnum
   put = putEnum
 
 assetType :: Asset -> AssetType
@@ -160,7 +173,7 @@ data Asset
   deriving (Eq, Show)
 
 instance Binary Asset where
-  get = get >>= \case
+  get = label "Asset" $ get >>= \case
     AssetTypeNative           -> pure AssetNative
     AssetTypeCreditAlphanum4  -> AssetCreditAlphanum4 <$> get <*> get
     AssetTypeCreditAlphanum12 -> AssetCreditAlphanum12 <$> get <*> get
@@ -207,7 +220,7 @@ data MemoType
   deriving (Eq, Show, Enum, Bounded)
 
 instance Binary MemoType where
-  get = getEnum
+  get = label "MemoType" getEnum
   put = putEnum
 
 
@@ -225,7 +238,7 @@ instance Binary Memo where
   put (MemoId i)     = put MemoTypeId >> put i
   put (MemoHash h)   = put MemoTypeHash >> put h
   put (MemoReturn h) = put MemoTypeReturn >> put h
-  get = do
+  get = label "Memo" $ do
     t <- get
     case t of
       MemoTypeNone   -> pure MemoNone
@@ -335,7 +348,7 @@ instance Binary SetOptionsOp where
     op & put . Padded . highThreshold
     op & put . Padded . homeDomain
     op & put . Padded . signer
-  get = SetOptionsOp
+  get = label "SetOptionsOp" $ SetOptionsOp
     <$> fmap unPadded get
     <*> fmap unPadded get
     <*> fmap unPadded get
@@ -357,7 +370,9 @@ instance Binary ChangeTrustOp where
   put op = do
     op & put . line
     op & put . Padded . limit
-  get = ChangeTrustOp <$> get <*> fmap unPadded get
+  get = label "ChangeTrustOp" $ ChangeTrustOp
+    <$> get
+    <*> fmap unPadded get
 
 
 data AllowTrustOp
@@ -374,7 +389,7 @@ instance Binary AllowTrustOp where
            (put . (AssetTypeCreditAlphanum12,))
            $ asset (op :: AllowTrustOp)
     op & put . Padded . authorize
-  get = do
+  get = label "AllowTrustOp" $ do
     trustor <- get
     asset <- get >>= \case
       AssetTypeNative -> fail "Can't allow trust for a native asset"
@@ -394,7 +409,9 @@ instance Binary ManageDataOp where
   put op = do
     op & put . dataName
     op & put . Padded . dataValue
-  get = ManageDataOp <$> get <*> fmap unPadded get
+  get = label "ManageDataOp" $ ManageDataOp
+    <$> get
+    <*> fmap unPadded get
 
 
 data OperationType
@@ -413,7 +430,7 @@ data OperationType
   deriving (Eq, Show, Enum, Bounded)
 
 instance Binary OperationType where
-  get = getEnum
+  get = label "OperationType" getEnum
   put = putEnum
 
 operationType :: OperationBody -> OperationType
@@ -462,7 +479,7 @@ instance Binary OperationBody where
       Inflation             -> pure ()
       ManageData op         -> put op
       BumpSequence sn       -> put sn
-  get = get >>= \case
+  get = label "OperationBody" $ get >>= \case
     OperationTypeCreateAccount      -> CreateAccount      <$> get
     OperationTypePayment            -> Payment            <$> get
     OperationTypePathPayment        -> PathPayment        <$> get
@@ -487,7 +504,7 @@ instance Binary Operation where
   put op = do
     put $ Padded $ sourceAccount (op :: Operation)
     put $ body op
-  get = Operation
+  get = label "Operation" $ Operation
     <$> fmap unPadded get
     <*> get
 
@@ -499,9 +516,9 @@ data TimeBounds
   } deriving (Eq, Show)
 
 instance Binary TimeBounds where
-  get = do
-    mn <- get
-    mx <- get
+  get = label "TimeBounds" $ do
+    mn <- label "minTime" get
+    mx <- label "maxTime" get
     pure $ TimeBounds mn $ if mx == 0 then Nothing else Just mx
   put (TimeBounds mn mx) = put mn >> put (fromMaybe 0 mx)
 
@@ -525,7 +542,7 @@ instance Binary Transaction where
     tx & put . memo
     tx & put . operations
     putWord32be 0 -- ext
-  get = Transaction
+  get = label "Transaction" $ Transaction
     <$> get               -- sourceAccount
     <*> get               -- fee
     <*> get               -- seqNum
@@ -548,17 +565,29 @@ newtype Signature
 
 data DecoratedSignature
   = DecoratedSignature
-  { signatureHint :: SignatureHint
-  , signature     :: Signature
-  } deriving (Eq, Show, Generic)
+  { hint      :: SignatureHint
+  , signature :: Signature
+  } deriving (Eq, Show)
 
-instance Binary DecoratedSignature
+instance Binary DecoratedSignature where
+  put ds = do
+    ds & put . hint
+    ds & put . signature
+  get = label "DecoratedSignature" $ DecoratedSignature
+    <$> get
+    <*> get
 
 
 data TransactionEnvelope
   = TransactionEnvelope
   { transaction :: Transaction
   , signatures  :: VarLen 20 [DecoratedSignature]
-  } deriving (Eq, Show, Generic)
+  } deriving (Eq, Show)
 
-instance Binary TransactionEnvelope
+instance Binary TransactionEnvelope where
+  put envelope = do
+    envelope & put . transaction
+    envelope & put . signatures
+  get = label "TransactionEnvelope" $ TransactionEnvelope
+    <$> get
+    <*> get
