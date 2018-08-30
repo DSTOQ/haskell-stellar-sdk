@@ -542,7 +542,7 @@ newtype SignatureHint
 
 newtype Signature
   = Signature
-  { unSignature :: FixLen 256 ByteString
+  { unSignature :: VarLen 64 ByteString
   } deriving (Eq, Show, Binary)
 
 

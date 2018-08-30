@@ -283,7 +283,7 @@ genSignatureHint :: Gen SignatureHint
 genSignatureHint = SignatureHint <$> Gen.expWord32
 
 genSignature :: Gen Signature
-genSignature = Signature . FixLen <$> Gen.bytes (Range.singleton 256)
+genSignature = Signature . VarLen <$> Gen.bytes (Range.linear 0 64)
 
 genDecoratedSignature :: Gen DecoratedSignature
 genDecoratedSignature = DecoratedSignature
