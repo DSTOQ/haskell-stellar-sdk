@@ -363,16 +363,16 @@ instance Binary SetOptionsOp where
 data ChangeTrustOp
   = ChangeTrustOp
   { line  :: Asset
-  , limit :: Maybe Int64   -- limit, Nothing deletes the trust line
+  , limit :: Maybe Int64
   } deriving (Eq, Show)
 
 instance Binary ChangeTrustOp where
   put op = do
     op & put . line
-    op & put . Padded . limit
+    op & put . fromMaybe 0 . limit
   get = label "ChangeTrustOp" $ ChangeTrustOp
     <$> get
-    <*> fmap unPadded get
+    <*> (get <&> \case 0 -> Nothing; l -> Just l)
 
 
 data AllowTrustOp
