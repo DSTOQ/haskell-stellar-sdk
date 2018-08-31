@@ -5,15 +5,15 @@
 module Main where
 
 import           Data.Binary.Extended
-import qualified Data.ByteString.Lazy  as BL
-import           Data.String           (String, fromString)
+import qualified Data.ByteString.Lazy   as BL
+import           Data.String            (String, fromString)
 import           Hedgehog
-import qualified Hedgehog.Gen.Extended as Gen
-import qualified Hedgehog.Range        as Range
+import qualified Hedgehog.Gen.Extended  as Gen
+import qualified Hedgehog.Range         as Range
 import           Protolude
-import           Stellar
-import           Stellar.Internal
-import           System.Exit           (exitFailure)
+import           Stellar.Types
+import           Stellar.Types.Internal
+import           System.Exit            (exitFailure)
 
 main :: IO ()
 main = ifM runProperties exitSuccess exitFailure
@@ -150,7 +150,7 @@ genHash = Hash <$> Gen.word256 Range.exponentialBounded
 genMemo :: Gen Memo
 genMemo = Gen.choice
   [ pure MemoNone
-  , MemoText . VarLen <$> Gen.bytes (Range.linear 0 27)
+  , MemoText <$> Gen.bytes (Range.linear 0 27)
   , MemoId <$> Gen.expWord64
   , MemoHash <$> genHash
   , MemoReturn <$> genHash
@@ -179,7 +179,7 @@ genPathPaymentOp = PathPaymentOp
   <*> genPublicKey
   <*> genAsset
   <*> Gen.expInt64
-  <*> (VarLen <$> Gen.list (Range.linear 0 5) genAsset)
+  <*> Gen.list (Range.linear 0 5) genAsset
 
 genOfferId :: Gen OfferId
 genOfferId = OfferId <$> Gen.expWord64
@@ -200,7 +200,7 @@ genCreatePassiveOfferOp = CreatePassiveOfferOp
   <*> genPrice
 
 genHomeDomain :: Gen HomeDomain
-genHomeDomain = HomeDomain . VarLen <$> Gen.text (Range.linear 1 32) Gen.ascii
+genHomeDomain = HomeDomain <$> Gen.text (Range.linear 1 32) Gen.ascii
 
 genSetOptionsOp :: Gen SetOptionsOp
 genSetOptionsOp = SetOptionsOp
@@ -217,7 +217,7 @@ genSetOptionsOp = SetOptionsOp
 genChangeTrustOp :: Gen ChangeTrustOp
 genChangeTrustOp = ChangeTrustOp
   <$> genAsset
-  <*> Gen.maybe Gen.expInt64
+  <*> (mfilter (> 0) <$> Gen.maybe Gen.expInt64)
 
 genAllowTrustOp :: Gen AllowTrustOp
 genAllowTrustOp = AllowTrustOp
@@ -277,13 +277,13 @@ genTransaction = Transaction
   <*> genSequenceNumber
   <*> Gen.maybe genTimeBounds
   <*> genMemo
-  <*> (VarLen <$> Gen.list (Range.exponential 1 10) genOperation)
+  <*> Gen.list (Range.exponential 1 10) genOperation
 
 genSignatureHint :: Gen SignatureHint
 genSignatureHint = SignatureHint <$> Gen.expWord32
 
 genSignature :: Gen Signature
-genSignature = Signature . VarLen <$> Gen.bytes (Range.linear 0 64)
+genSignature = Signature <$> Gen.bytes (Range.linear 0 64)
 
 genDecoratedSignature :: Gen DecoratedSignature
 genDecoratedSignature = DecoratedSignature
@@ -293,4 +293,4 @@ genDecoratedSignature = DecoratedSignature
 genTransactionEnvelope :: Gen TransactionEnvelope
 genTransactionEnvelope = TransactionEnvelope
   <$> genTransaction
-  <*> (VarLen <$> Gen.list (Range.linear 0 3) genDecoratedSignature)
+  <*> Gen.list (Range.linear 0 3) genDecoratedSignature

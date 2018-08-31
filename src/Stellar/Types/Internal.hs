@@ -1,7 +1,7 @@
 {-# LANGUAGE DataKinds           #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 
-module Stellar.Internal where
+module Stellar.Types.Internal where
 
 import           Control.Monad        (fail)
 import           Data.Binary.Extended
@@ -45,6 +45,8 @@ instance (KnownNat n, Binary b) => Binary (VarLen n [b]) where
       then fail $ "Max length (" <> show cap <> ") exceeded (" <> show len <> ")"
       else VarLen <$> replicateM len get
 
+getVarLen :: forall n a. Binary (VarLen n a) => Proxy n -> Get a
+getVarLen _ = fmap unVarLen (get :: Get (VarLen n a))
 
 newtype FixLen (n :: Nat) a
   = FixLen

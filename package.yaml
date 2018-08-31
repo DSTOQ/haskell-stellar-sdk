@@ -68,10 +68,12 @@ library:
   - bytestring
   - binary
   - largeword
+  - lens
   - semigroups
   exposed-modules:
   - Stellar
-  - Stellar.Internal
+  - Stellar.Types
+  - Stellar.Types.Internal
   - Data.Binary.Extended
 
 tests:
