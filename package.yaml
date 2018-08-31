@@ -67,11 +67,14 @@ library:
   - protolude
   - bytestring
   - binary
+  - cryptonite
   - largeword
   - lens
+  - memory
   - semigroups
   exposed-modules:
   - Stellar
+  - Stellar.Crypto
   - Stellar.Types
   - Stellar.Types.Internal
   - Data.Binary.Extended
@@ -85,6 +88,7 @@ tests:
     - base >= 4.9 && < 5
     - binary
     - bytestring
+    - cryptonite
     - largeword
     - protolude
     - stellar-core

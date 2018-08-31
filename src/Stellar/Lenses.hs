@@ -34,7 +34,8 @@ makeFieldsNoPrefix ''Price
 makeFieldsNoPrefix ''Asset
 makeFieldsNoPrefix ''AssetCode12
 makeFieldsNoPrefix ''AssetCode4
+makeFieldsNoPrefix ''Asset
 makeFieldsNoPrefix ''Threshold
 makeFieldsNoPrefix ''SignerKey
 makeFieldsNoPrefix ''PublicKey
-makeFieldsNoPrefix ''Asset
+makeFieldsNoPrefix ''KeyPair

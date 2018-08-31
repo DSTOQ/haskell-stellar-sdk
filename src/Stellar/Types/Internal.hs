@@ -1,16 +1,20 @@
 {-# LANGUAGE DataKinds           #-}
+{-# LANGUAGE FlexibleContexts    #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 
 module Stellar.Types.Internal where
 
-import           Control.Monad        (fail)
+import           Control.Monad         (fail)
+import           Crypto.Error          (eitherCryptoError)
+import qualified Crypto.PubKey.Ed25519 as ED
 import           Data.Binary.Extended
-import           Data.Binary.Get      (getByteString, getWord32be, skip)
-import           Data.Binary.Put      (putWord32be)
-import qualified Data.ByteString      as BS
-import           Data.Foldable        (length)
+import           Data.Binary.Get       (getByteString, getWord32be, skip)
+import           Data.Binary.Put       (putWord32be)
+import qualified Data.ByteArray        as BA
+import qualified Data.ByteString       as BS
+import           Data.Foldable         (length)
 import           GHC.TypeLits
-import           Protolude            hiding (get, put)
+import           Protolude             hiding (get, put)
 
 
 newtype VarLen (n :: Nat) a
@@ -33,6 +37,12 @@ instance KnownNat n => Binary (VarLen n ByteString) where
 instance KnownNat n => Binary (VarLen n Text) where
   put (VarLen t) = put (VarLen (toS t) :: VarLen n ByteString)
   get = get <&> \(VarLen bs :: VarLen n ByteString) -> VarLen (toS bs)
+
+instance KnownNat n => Binary (VarLen n ED.Signature) where
+  put (VarLen s) = putPaddedByteString $ BA.convert s
+  get = do
+    (VarLen bs :: VarLen n ByteString) <- get
+    either (fail . show) (pure . VarLen) $ eitherCryptoError $ ED.signature bs
 
 instance (KnownNat n, Binary b) => Binary (VarLen n [b]) where
   put (VarLen bs) = do

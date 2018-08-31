@@ -9,6 +9,7 @@
 module Stellar.Types where
 
 import           Control.Monad          (fail)
+import qualified Crypto.PubKey.Ed25519  as ED
 import           Data.Binary.Extended
 import           Data.Binary.Get        (Get, getInt64be, label, skip)
 import           Data.Binary.Put        (putWord32be)
@@ -16,6 +17,14 @@ import           Data.LargeWord         (Word256, Word96)
 import           Data.Word              (Word32)
 import           Protolude              hiding (get, put)
 import           Stellar.Types.Internal
+
+data KeyPair
+  = KeyPair
+  { _secretKey :: ED.SecretKey
+  , _hint      :: SignatureHint
+  , _publicKey :: ED.PublicKey
+  } deriving (Eq, Show)
+
 
 data PublicKeyType
   = PublicKeyTypeEd25519
@@ -529,11 +538,11 @@ newtype SignatureHint
 
 newtype Signature
   = Signature
-  { _signature :: ByteString
+  { _signature :: ED.Signature
   } deriving (Eq, Show)
 
 instance Binary Signature where
-  put (Signature bs) = put (VarLen bs :: VarLen 64 ByteString)
+  put (Signature bs) = put (VarLen bs :: VarLen 64 ED.Signature)
   get = label "Signature" $ Signature <$> getVarLen (Proxy :: Proxy 64)
 
 
@@ -545,7 +554,7 @@ data DecoratedSignature
 
 instance Binary DecoratedSignature where
   put ds = do
-    put $ _hint ds
+    put $ _hint (ds :: DecoratedSignature)
     put $ _signature (ds :: DecoratedSignature)
   get = label "DecoratedSignature" $ DecoratedSignature
     <$> get -- hint

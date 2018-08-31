@@ -4,6 +4,8 @@
 
 module Main where
 
+import           Crypto.Error
+import qualified Crypto.PubKey.Ed25519  as ED
 import           Data.Binary.Extended
 import qualified Data.ByteString.Lazy   as BL
 import           Data.String            (String, fromString)
@@ -14,6 +16,7 @@ import           Protolude
 import           Stellar.Types
 import           Stellar.Types.Internal
 import           System.Exit            (exitFailure)
+
 
 main :: IO ()
 main = ifM runProperties exitSuccess exitFailure
@@ -283,7 +286,8 @@ genSignatureHint :: Gen SignatureHint
 genSignatureHint = SignatureHint <$> Gen.expWord32
 
 genSignature :: Gen Signature
-genSignature = Signature <$> Gen.bytes (Range.linear 0 64)
+genSignature = Signature . throwCryptoError . ED.signature
+  <$> Gen.bytes (Range.singleton 64)
 
 genDecoratedSignature :: Gen DecoratedSignature
 genDecoratedSignature = DecoratedSignature
