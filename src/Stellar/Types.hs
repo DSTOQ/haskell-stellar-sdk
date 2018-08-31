@@ -10,20 +10,57 @@ module Stellar.Types where
 
 import           Control.Monad          (fail)
 import qualified Crypto.PubKey.Ed25519  as ED
+import           Crypto.Random.Types    (MonadRandom)
 import           Data.Binary.Extended
 import           Data.Binary.Get        (Get, getInt64be, label, skip)
 import           Data.Binary.Put        (putWord32be)
+import qualified Data.ByteArray         as BA
+import qualified Data.ByteString        as BS
+import qualified Data.ByteString.Base16 as B16
 import           Data.LargeWord         (Word256, Word96)
-import           Data.Word              (Word32)
-import           Protolude              hiding (get, put)
+import           Data.Word.Extended     (Word32, word32FromOctets,
+                                         word32ToOctets)
+import           Prelude                (String, show)
+import           Protolude              hiding (get, put, show)
 import           Stellar.Types.Internal
+
 
 data KeyPair
   = KeyPair
   { _secretKey :: ED.SecretKey
-  , _hint      :: SignatureHint
   , _publicKey :: ED.PublicKey
-  } deriving (Eq, Show)
+  , _hint      :: SignatureHint
+  } deriving (Eq)
+
+instance Show KeyPair where
+  show (KeyPair sk pk h) = "KeyPair {"
+    <> "_secretKey = " <> Prelude.show sk
+    <> ", _publicKey = " <> showByteString (BA.convert pk)
+    <> ", _hint = " <> Prelude.show h
+    <> "}"
+
+showByteString :: ByteString -> String
+showByteString = Prelude.show . (toS :: ByteString -> String) . B16.encode
+
+keyPair :: ED.SecretKey -> ED.PublicKey -> KeyPair
+keyPair sk pk = KeyPair sk pk hint
+  where
+    hint :: SignatureHint
+    hint = SignatureHint $ word32FromOctets $ takeR 4 $ BA.unpack pk
+
+    takeR :: Int -> [a] -> [a]
+    takeR n l = go (drop n l) l
+      where
+        go :: [a] -> [a] -> [a]
+        go [] r          = r
+        go (_:xs) (_:ys) = go xs ys
+        go _ []          = []
+
+keyPair' :: ED.SecretKey -> KeyPair
+keyPair' sk = keyPair sk (ED.toPublic sk)
+
+generateKeyPair :: MonadRandom m => m KeyPair
+generateKeyPair = keyPair' <$> ED.generateSecretKey
 
 
 data PublicKeyType
@@ -165,12 +202,6 @@ newtype Fee
 newtype SequenceNumber
   = SequenceNumber
   { _sequenceNumber :: Int64
-  } deriving (Eq, Show, Binary)
-
-
-newtype Hash
-  = Hash
-  { _hash :: Word256
   } deriving (Eq, Show, Binary)
 
 
@@ -533,13 +564,20 @@ instance Binary Transaction where
 newtype SignatureHint
   = SignatureHint
   { _signatureHint :: Word32
-  } deriving (Eq, Show, Binary)
+  } deriving (Eq, Binary)
+
+instance Show SignatureHint where
+  show (SignatureHint w) = "SignatureHint "
+    <> showByteString (BS.pack $ word32ToOctets w)
 
 
 newtype Signature
   = Signature
   { _signature :: ED.Signature
-  } deriving (Eq, Show)
+  } deriving (Eq)
+
+instance Show Signature where
+  show (Signature ed) = "Signature " <> showByteString (BA.convert ed)
 
 instance Binary Signature where
   put (Signature bs) = put (VarLen bs :: VarLen 64 ED.Signature)
@@ -553,12 +591,37 @@ data DecoratedSignature
   } deriving (Eq, Show)
 
 instance Binary DecoratedSignature where
-  put ds = do
-    put $ _hint (ds :: DecoratedSignature)
-    put $ _signature (ds :: DecoratedSignature)
+  put (DecoratedSignature hint signature) =
+    put hint >> put signature
   get = label "DecoratedSignature" $ DecoratedSignature
     <$> get -- hint
     <*> get -- signature
+
+
+data EnvelopeType
+  = EnvelopeTypeScp
+  | EnvelopeTypeTx
+  | EnvelopeTypeAuth
+  deriving (Eq, Show, Enum, Bounded)
+
+instance Binary EnvelopeType where
+  get = label "EnvelopeType" getEnum
+  put = putEnum
+
+
+newtype Hash
+  = Hash
+  { _hash :: ByteString
+  } deriving (Eq, Show)
+
+instance Binary Hash where
+  put (Hash bs) = put (FixLen bs :: FixLen 256 ByteString)
+  get = label "Hash" $ Hash <$> getFixLen (Proxy :: Proxy 256)
+
+data Network
+  = Public
+  | Testnet
+  deriving (Eq, Show, Enum)
 
 
 data TransactionEnvelope
@@ -568,11 +631,10 @@ data TransactionEnvelope
   } deriving (Eq, Show)
 
 instance Binary TransactionEnvelope where
-  put envelope = do
-    envelope & put . _transaction
-    envelope & put
-      . (VarLen :: [DecoratedSignature] -> VarLen 20 [DecoratedSignature])
-      . _signatures
+  put (TransactionEnvelope transaction signatures) = do
+    put transaction
+    put $ (VarLen :: [DecoratedSignature] -> VarLen 20 [DecoratedSignature])
+        signatures
   get = label "TransactionEnvelope" $ TransactionEnvelope
     <$> get
     <*> getVarLen (Proxy :: Proxy 20)

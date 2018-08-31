@@ -1,6 +1,8 @@
 {-# LANGUAGE DataKinds           #-}
 {-# LANGUAGE FlexibleContexts    #-}
 {-# LANGUAGE ScopedTypeVariables #-}
+{-# LANGUAGE StrictData          #-}
+
 
 module Stellar.Types.Internal where
 
@@ -21,6 +23,9 @@ newtype VarLen (n :: Nat) a
   = VarLen
   { unVarLen :: a
   } deriving (Eq, Show)
+
+getVarLen :: forall n a. Binary (VarLen n a) => Proxy n -> Get a
+getVarLen _ = fmap unVarLen (get :: Get (VarLen n a))
 
 instance KnownNat n => Binary (VarLen n ByteString) where
   put (VarLen bs) = putPaddedByteString bs
@@ -55,13 +60,14 @@ instance (KnownNat n, Binary b) => Binary (VarLen n [b]) where
       then fail $ "Max length (" <> show cap <> ") exceeded (" <> show len <> ")"
       else VarLen <$> replicateM len get
 
-getVarLen :: forall n a. Binary (VarLen n a) => Proxy n -> Get a
-getVarLen _ = fmap unVarLen (get :: Get (VarLen n a))
 
 newtype FixLen (n :: Nat) a
   = FixLen
   { unFixLen :: a
   } deriving (Eq, Show)
+
+getFixLen :: forall n a. Binary (FixLen n a) => Proxy n -> Get a
+getFixLen _ = fmap unFixLen (get :: Get (FixLen n a))
 
 instance KnownNat n => Binary (FixLen n ByteString) where
   put (FixLen bs) =

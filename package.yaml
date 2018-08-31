@@ -65,6 +65,7 @@ library:
   dependencies:
   - base >= 4.9 && < 5
   - protolude
+  - base16-bytestring
   - bytestring
   - binary
   - cryptonite
@@ -90,6 +91,7 @@ tests:
     - bytestring
     - cryptonite
     - largeword
+    - lens
     - protolude
     - stellar-core
     - hedgehog
