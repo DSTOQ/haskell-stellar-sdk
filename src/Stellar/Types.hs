@@ -287,12 +287,12 @@ instance Binary PathPaymentOp where
     put $ _destAmount op
     put (VarLen $ _path op :: VarLen 5 [Asset])
   get = label "PathPaymentOp" $ PathPaymentOp
-      <$> get                          -- sendAsset
-      <*> get                          -- sendMax
-      <*> get                          -- destination
-      <*> get                          -- destAsset
-      <*> get                          -- destAmount
-      <*> getVarLen (Proxy :: Proxy 5) -- path
+    <$> get                          -- sendAsset
+    <*> get                          -- sendMax
+    <*> get                          -- destination
+    <*> get                          -- destAsset
+    <*> get                          -- destAmount
+    <*> getVarLen (Proxy :: Proxy 5) -- path
 
 
 newtype OfferId
@@ -622,6 +622,10 @@ data Network
   = Public
   | Testnet
   deriving (Eq, Show, Enum)
+
+instance Binary Network where
+  get = label "Network" getEnum
+  put = putEnum
 
 
 data TransactionEnvelope

@@ -213,3 +213,6 @@ genTransactionEnvelope :: Gen TransactionEnvelope
 genTransactionEnvelope = TransactionEnvelope
   <$> genTransaction
   <*> Gen.list (Range.linear 0 3) genDecoratedSignature
+
+genNetwork :: Gen Network
+genNetwork = Gen.element [Public, Testnet]

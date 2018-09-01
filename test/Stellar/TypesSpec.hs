@@ -43,6 +43,7 @@ gens =
   , Genable ("AssetType",            genAssetType)
   , Genable ("AssetCode4",           genAssetCode4)
   , Genable ("AssetCode12",          genAssetCode12)
+  , Genable ("Network",              genNetwork)
   , Genable ("Asset",                genAsset)
   , Genable ("Price",                genPrice)
   , Genable ("Fee",                  genFee)

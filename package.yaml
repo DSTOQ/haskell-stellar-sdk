@@ -75,6 +75,7 @@ library:
   - semigroups
   exposed-modules:
   - Stellar
+  - Stellar.Lenses
   - Stellar.Crypto
   - Stellar.Types
   - Stellar.Types.Internal
