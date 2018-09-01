@@ -66,6 +66,7 @@ library:
   - base >= 4.9 && < 5
   - protolude
   - base16-bytestring
+  - base32string
   - bytestring
   - binary
   - cryptonite
