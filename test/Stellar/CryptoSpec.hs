@@ -9,8 +9,8 @@ import qualified Stellar.Lenses as L
 
 
 run :: IO Bool
-run = checkParallel $ Group "Stellar.CryptoSpec" [
-    ("prop_sign", prop_sign)
+run = checkParallel $ Group "Stellar.CryptoSpec"
+  [ ("Sign Transaction Envelope", prop_sign)
   ]
 
 prop_sign :: Property

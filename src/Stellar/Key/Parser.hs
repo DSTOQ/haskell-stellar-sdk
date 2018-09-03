@@ -16,11 +16,11 @@ import           Protolude
 
 -- Example: GAMRCWH3Q2WHEGTNNNUQEF2VP46XYULGAH6RYJTBO44YZX5CY7YE7QRD
 parsePublicKey :: Text -> Either Error ED.PublicKey
-parsePublicKey = fromTextCb 0x30 ED.publicKey
+parsePublicKey = fromText 0x30 ED.publicKey
 
 -- Example: SBMX26OK2YUGXZ2XOEOLO5NBTKFSZ7T4HXZ4UB3DXIN43J7DKTMA2566
 parseSecretKey :: Text -> Either Error ED.SecretKey
-parseSecretKey = fromTextCb 0x90 ED.secretKey
+parseSecretKey = fromText 0x90 ED.secretKey
 
 type Ver = Word8
 
@@ -31,8 +31,8 @@ data Error
   | CryptoError CryptoError
   deriving (Eq, Show)
 
-fromTextCb :: Ver -> (ByteString -> CryptoFailable k) -> Text -> Either Error k
-fromTextCb ver f = getKeyBytes ver
+fromText :: Ver -> (ByteString -> CryptoFailable k) -> Text -> Either Error k
+fromText ver f = getKeyBytes ver
                >=> onCryptoFailure (throwError . CryptoError) pure . f
 
 getKeyBytes :: Ver -> Text -> Either Error ByteString

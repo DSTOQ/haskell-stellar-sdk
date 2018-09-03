@@ -1,13 +1,17 @@
 module Main where
 
+import           Prelude                (and)
 import           Protolude
-import qualified Stellar.CryptoSpec as CryptoSpec
-import qualified Stellar.TypesSpec  as TypesSpec
-import           System.Exit        (exitFailure)
+import qualified Stellar.CryptoSpec     as CryptoSpec
+import qualified Stellar.Key.ParserSpec as ParserSpec
+import qualified Stellar.TypesSpec      as TypesSpec
+import           System.Exit            (exitFailure)
 
 
 main :: IO ()
-main = do
-  unlessM TypesSpec.run exitFailure
-  unlessM CryptoSpec.run exitFailure
-  pure ()
+main = unlessM (and <$> sequence specs) exitFailure where
+  specs =
+    [ TypesSpec.run
+    , CryptoSpec.run
+    , ParserSpec.run
+    ]
