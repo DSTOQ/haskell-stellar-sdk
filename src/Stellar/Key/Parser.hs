@@ -14,11 +14,9 @@ import           Data.Word.Extended        (word16FromOctets)
 import           Protolude
 
 
--- Example: GAMRCWH3Q2WHEGTNNNUQEF2VP46XYULGAH6RYJTBO44YZX5CY7YE7QRD
 parsePublicKey :: Text -> Either Error ED.PublicKey
 parsePublicKey = fromText 0x30 ED.publicKey
 
--- Example: SBMX26OK2YUGXZ2XOEOLO5NBTKFSZ7T4HXZ4UB3DXIN43J7DKTMA2566
 parseSecretKey :: Text -> Either Error ED.SecretKey
 parseSecretKey = fromText 0x90 ED.secretKey
 
