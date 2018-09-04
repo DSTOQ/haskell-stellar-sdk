@@ -9,6 +9,7 @@
 module Stellar.Types where
 
 import           Control.Monad          (fail)
+import qualified Crypto.Error           as CE
 import qualified Crypto.PubKey.Ed25519  as ED
 import           Crypto.Random.Types    (MonadRandom)
 import           Data.Binary.Extended
@@ -27,7 +28,7 @@ import           Stellar.Types.Internal
 data KeyPair
   = KeyPair
   { _secretKey :: ED.SecretKey
-  , _publicKey :: ED.PublicKey
+  , _publicKey :: PublicKey
   , _hint      :: SignatureHint
   } deriving (Eq)
 
@@ -42,7 +43,7 @@ showByteString :: ByteString -> String
 showByteString = Prelude.show . (toS :: ByteString -> String) . B16.encode
 
 keyPair :: ED.SecretKey -> ED.PublicKey -> KeyPair
-keyPair sk pk = KeyPair sk pk hint
+keyPair sk pk = KeyPair sk (PublicKeyEd25519 pk) hint
   where
     hint :: SignatureHint
     hint = SignatureHint $ word32FromBytes $ takeR 4 $ BA.unpack pk
@@ -73,14 +74,21 @@ instance Binary PublicKeyType where
 
 newtype PublicKey
   = PublicKeyEd25519
-  { _publicKeyEd25519 :: Word256
-  } deriving (Eq, Show)
+  { _publicKeyEd25519 :: ED.PublicKey
+  } deriving (Eq, Show, BA.ByteArrayAccess)
 
 instance Binary PublicKey where
-  put pk = put PublicKeyTypeEd25519
-        >> put (_publicKeyEd25519 pk)
+  put (PublicKeyEd25519 edPk) = do
+    put PublicKeyTypeEd25519
+    let k :: FixLen 32 ByteString
+        k = FixLen (BA.convert edPk)
+    put k
   get = label "PublicKey"
-      $ get >>= \case PublicKeyTypeEd25519 -> PublicKeyEd25519 <$> get
+      $ get >>= \case PublicKeyTypeEd25519 -> do
+                        fl :: FixLen 32 ByteString <- get
+                        let bs = unFixLen fl
+                        key <- ED.publicKey bs & CE.onCryptoFailure (fail . show) pure
+                        pure $ PublicKeyEd25519 key
 
 
 data SignerKeyType

@@ -22,9 +22,12 @@ signTransactionEnvelope network keys envelope =
   where signature = signTransaction network keys (envelope ^. L.transaction)
 
 signTransaction :: Network -> KeyPair -> Transaction -> DecoratedSignature
-signTransaction network keys tx = DecoratedSignature (keys ^. L.hint)
-  $ Signature $ ED.sign (keys ^. L.secretKey) (keys ^. L.publicKey)
-              $ txSignaturePayload network tx
+signTransaction network keys tx =
+  let secret = keys ^. L.secretKey
+      public = keys ^. L.publicKey ^. L.publicKeyEd25519
+      payload = txSignaturePayload network tx
+      signature = Signature $ ED.sign secret public payload
+  in DecoratedSignature (keys ^. L.hint) signature
 
 txSignaturePayload :: Network -> Transaction -> ByteString
 txSignaturePayload net tx = sha256 . LBS.toStrict $ runPut $

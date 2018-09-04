@@ -13,6 +13,10 @@ genSecretKey :: Gen ED.SecretKey
 genSecretKey = throwCryptoError . ED.secretKey
   <$> Gen.bytes (Range.singleton 32)
 
+genEdPublicKey :: Gen ED.PublicKey
+genEdPublicKey = throwCryptoError . ED.publicKey
+  <$> Gen.bytes (Range.singleton 32)
+
 genKeyPair :: Gen KeyPair
 genKeyPair = keyPair' <$> genSecretKey
 
@@ -20,7 +24,7 @@ genPublicKeyType :: Gen PublicKeyType
 genPublicKeyType = Gen.enumBounded
 
 genPublicKey :: Gen PublicKey
-genPublicKey = PublicKeyEd25519 <$> Gen.word256 Range.exponentialBounded
+genPublicKey = PublicKeyEd25519 <$> genEdPublicKey
 
 genSignerKeyType :: Gen SignerKeyType
 genSignerKeyType = Gen.enumBounded
