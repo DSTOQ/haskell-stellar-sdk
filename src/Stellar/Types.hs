@@ -75,7 +75,12 @@ instance Binary PublicKeyType where
 newtype PublicKey
   = PublicKeyEd25519
   { _publicKeyEd25519 :: ED.PublicKey
-  } deriving (Eq, Show, BA.ByteArrayAccess)
+  } deriving (Eq, BA.ByteArrayAccess)
+
+instance Show PublicKey where
+  show (PublicKeyEd25519 pk) =
+    "PublicKeyEd25519 {_publicKeyEd25519 = "
+    <> showByteString (BA.convert pk) <> "}"
 
 instance Binary PublicKey where
   put (PublicKeyEd25519 edPk) = do
