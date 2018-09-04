@@ -18,8 +18,7 @@ import qualified Data.ByteArray         as BA
 import qualified Data.ByteString        as BS
 import qualified Data.ByteString.Base16 as B16
 import           Data.LargeWord         (Word256, Word96)
-import           Data.Word.Extended     (Word32, word32FromOctets,
-                                         word32ToOctets)
+import           Data.Word.Extended     (Word32, word32FromBytes, word32ToBytes)
 import           Prelude                (String, show)
 import           Protolude              hiding (get, put, show)
 import           Stellar.Types.Internal
@@ -46,7 +45,7 @@ keyPair :: ED.SecretKey -> ED.PublicKey -> KeyPair
 keyPair sk pk = KeyPair sk pk hint
   where
     hint :: SignatureHint
-    hint = SignatureHint $ word32FromOctets $ takeR 4 $ BA.unpack pk
+    hint = SignatureHint $ word32FromBytes $ takeR 4 $ BA.unpack pk
 
     takeR :: Int -> [a] -> [a]
     takeR n l = go (drop n l) l
@@ -568,7 +567,7 @@ newtype SignatureHint
 
 instance Show SignatureHint where
   show (SignatureHint w) = "SignatureHint "
-    <> showByteString (BS.pack $ word32ToOctets w)
+    <> showByteString (BS.pack $ word32ToBytes w)
 
 
 newtype Signature
