@@ -11,12 +11,12 @@ import           Crypto.Error          (eitherCryptoError)
 import qualified Crypto.PubKey.Ed25519 as ED
 import           Data.Binary.Extended
 import           Data.Binary.Get       (getByteString, getWord32be, skip)
-import           Data.Binary.Put       (putWord32be)
+import           Data.Binary.Put       (putByteString, putWord32be)
 import qualified Data.ByteArray        as BA
 import qualified Data.ByteString       as BS
 import           Data.Foldable         (length)
 import           GHC.TypeLits
-import           Protolude             hiding (get, put)
+import           Protolude             hiding (get, put, putByteString)
 
 
 newtype VarLen (n :: Nat) a
@@ -28,7 +28,14 @@ getVarLen :: forall n a. Binary (VarLen n a) => Proxy n -> Get a
 getVarLen _ = fmap unVarLen (get :: Get (VarLen n a))
 
 instance KnownNat n => Binary (VarLen n ByteString) where
-  put (VarLen bs) = putPaddedByteString bs
+  put (VarLen bs) =
+    let maximumLength = fromInteger $ natVal (Proxy :: Proxy n)
+        actualLength = BS.length bs
+    in if actualLength <= maximumLength
+          then putPaddedByteString bs
+          else fail $ "Attempt to put a longer bytestring: "
+                    <> "max length = " <> show maximumLength
+                    <> ", actual = " <> show actualLength
   get = do
     len <- getWord32be <&> fromIntegral
     let cap = fromInteger $ natVal (Proxy :: Proxy n)
@@ -69,20 +76,16 @@ newtype FixLen (n :: Nat) a
 getFixLen :: forall n a. Binary (FixLen n a) => Proxy n -> Get a
 getFixLen _ = fmap unFixLen (get :: Get (FixLen n a))
 
-instance KnownNat n => Binary (FixLen n ByteString) where
+instance (KnownNat n, Mod n 4 ~ 0) => Binary (FixLen n ByteString) where
   put (FixLen bs) =
-    let len = fromInteger $ natVal (Proxy :: Proxy n)
-    in putPaddedByteString $ BS.take len bs
-  get = do
-    let cap = fromInteger $ natVal (Proxy :: Proxy n)
-    len <- getWord32be <&> fromIntegral
-    if len /= cap
-      then fail $ "Invalid byte length: expected "
-                <> show cap <> ", got " <> show len
-      else do
-        bs <- getByteString len
-        skip $ padding 4 len
-        pure $ FixLen bs
+    let expectedLen = fromInteger $ natVal (Proxy :: Proxy n)
+        actualLen = BS.length bs
+    in if actualLen == expectedLen
+          then putByteString $ bs <> BS.replicate (padding 4 (BS.length bs)) 0
+          else fail $ "Attempt to put a byte string with invalid length: "
+                    <> "declared = " <> show expectedLen
+                    <> ", actual = " <> show actualLen
+  get = FixLen <$> getByteString (fromInteger $ natVal (Proxy :: Proxy n))
 
 
 newtype DataValue

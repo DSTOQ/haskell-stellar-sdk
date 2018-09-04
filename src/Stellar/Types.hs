@@ -221,8 +221,8 @@ data Memo
   = MemoNone
   | MemoText ByteString
   | MemoId Word64
-  | MemoHash Hash -- the hash of what to pull from the content server
-  | MemoReturn Hash -- the hash of the tx you are rejecting
+  | MemoHash Hash
+  | MemoReturn Hash
   deriving (Eq, Show)
 
 instance Binary Memo where
@@ -611,11 +611,14 @@ instance Binary EnvelopeType where
 newtype Hash
   = Hash
   { _hash :: ByteString
-  } deriving (Eq, Show)
+  } deriving (Eq)
+
+instance Show Hash where
+  show (Hash bs) = "Hash {_hash = " <> showByteString bs <> "}"
 
 instance Binary Hash where
-  put (Hash bs) = put (FixLen bs :: FixLen 256 ByteString)
-  get = label "Hash" $ Hash <$> getFixLen (Proxy :: Proxy 256)
+  put (Hash bs) = put (FixLen bs :: FixLen 32 ByteString)
+  get = label "Hash" $ Hash <$> getFixLen (Proxy :: Proxy 32)
 
 data Network
   = Public

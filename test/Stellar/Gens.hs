@@ -63,7 +63,7 @@ genTimeBounds = TimeBounds
   <*> Gen.maybe (Gen.filter (> 0) $ Gen.word64 Range.exponentialBounded)
 
 genHash :: Gen Hash
-genHash = Hash <$> Gen.bytes (Range.singleton 256)
+genHash = Hash <$> Gen.bytes (Range.singleton 32)
 
 genMemo :: Gen Memo
 genMemo = Gen.choice
