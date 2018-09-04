@@ -1,4 +1,4 @@
-module Stellar.Gen where
+module Stellar.Gens where
 
 import           Crypto.Error           (throwCryptoError)
 import qualified Crypto.PubKey.Ed25519  as ED

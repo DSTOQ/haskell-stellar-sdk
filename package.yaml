@@ -78,6 +78,7 @@ library:
   exposed-modules:
   - Stellar
   - Stellar.Key.Parser
+  - Stellar.Key.Printer
   - Stellar.Lenses
   - Stellar.Crypto
   - Stellar.Types
@@ -99,3 +100,5 @@ tests:
     - protolude
     - stellar-core
     - hedgehog
+    ghc-options:
+    - -threaded

@@ -9,7 +9,7 @@ import qualified Data.ByteString.Lazy as BL
 import           Data.String          (String, fromString)
 import           Hedgehog
 import           Protolude
-import           Stellar.Gen
+import           Stellar.Gens
 
 
 newtype Checkable

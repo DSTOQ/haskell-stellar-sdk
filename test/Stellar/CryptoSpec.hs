@@ -4,7 +4,7 @@ import           Control.Lens
 import           Hedgehog
 import           Protolude
 import           Stellar.Crypto
-import           Stellar.Gen
+import           Stellar.Gens
 import qualified Stellar.Lenses as L
 
 
