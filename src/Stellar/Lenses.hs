@@ -32,8 +32,7 @@ makeFieldsNoPrefix ''SequenceNumber
 makeFieldsNoPrefix ''Fee
 makeFieldsNoPrefix ''Price
 makeFieldsNoPrefix ''Asset
-makeFieldsNoPrefix ''AssetCode12
-makeFieldsNoPrefix ''AssetCode4
+makeFieldsNoPrefix ''AssetCode
 makeFieldsNoPrefix ''Asset
 makeFieldsNoPrefix ''Threshold
 makeFieldsNoPrefix ''SignerKey

@@ -1,134 +1,53 @@
-{-# LANGUAGE DataKinds             #-}
-{-# LANGUAGE DuplicateRecordFields #-}
-{-# LANGUAGE FlexibleContexts      #-}
-{-# LANGUAGE LambdaCase            #-}
-{-# LANGUAGE ScopedTypeVariables   #-}
-{-# LANGUAGE StrictData            #-}
-{-# LANGUAGE TupleSections         #-}
+{-# LANGUAGE StrictData #-}
 
-module Stellar.Types where
+module Stellar.Types
+  ( module Stellar.Types.Asset
+  , module Stellar.Types.Key
+  , AllowTrustOp (..)
+  , ChangeTrustOp (..)
+  , CreateAccountOp (..)
+  , CreatePassiveOfferOp (..)
+  , DecoratedSignature (..)
+  , EnvelopeType (..)
+  , Fee (..)
+  , ManageDataOp (..)
+  , ManageOfferOp (..)
+  , Memo (..)
+  , Network (..)
+  , OfferId (..)
+  , Operation (..)
+  , OperationBody (..)
+  , OperationType (..)
+  , Hash (..)
+  , HomeDomain (..)
+  , PathPaymentOp (..)
+  , PaymentOp (..)
+  , Price (..)
+  , SetOptionsOp (..)
+  , SequenceNumber (..)
+  , Signature (..)
+  , Signer (..)
+  , TimeBounds (..)
+  , Threshold (..)
+  , Transaction (..)
+  , TransactionEnvelope (..)
+  ) where
 
 import           Control.Monad          (fail)
-import qualified Crypto.Error           as CE
 import qualified Crypto.PubKey.Ed25519  as ED
-import           Crypto.Random.Types    (MonadRandom)
 import           Data.Binary.Extended
-import           Data.Binary.Get        (Get, getInt64be, label, skip)
+import           Data.Binary.Get        (getByteString, getInt64be, label, skip)
 import           Data.Binary.Put        (putWord32be)
 import qualified Data.ByteArray         as BA
-import qualified Data.ByteString        as BS
-import qualified Data.ByteString.Base16 as B16
-import           Data.LargeWord         (Word256, Word96)
-import           Data.Word.Extended     (Word32, word32FromBytes, word32ToBytes)
-import           Prelude                (String, show)
+import qualified Data.ByteString.Extended        as BS
+import           Data.StaticText        (Static)
+import qualified Data.StaticText        as S
+import           Data.Word.Extended     (Word32)
+import           Prelude                ( show)
 import           Protolude              hiding (get, put, show)
+import           Stellar.Types.Asset
+import           Stellar.Types.Key
 import           Stellar.Types.Internal
-
-
-data KeyPair
-  = KeyPair
-  { _secretKey :: ED.SecretKey
-  , _publicKey :: PublicKey
-  , _hint      :: SignatureHint
-  } deriving (Eq)
-
-instance Show KeyPair where
-  show (KeyPair sk pk h) = "KeyPair {"
-    <> "_secretKey = " <> Prelude.show sk
-    <> ", _publicKey = " <> showByteString (BA.convert pk)
-    <> ", _hint = " <> Prelude.show h
-    <> "}"
-
-showByteString :: ByteString -> String
-showByteString = Prelude.show . (toS :: ByteString -> String) . B16.encode
-
-keyPair :: ED.SecretKey -> ED.PublicKey -> KeyPair
-keyPair sk pk = KeyPair sk (PublicKeyEd25519 pk) hint
-  where
-    hint :: SignatureHint
-    hint = SignatureHint $ word32FromBytes $ takeR 4 $ BA.unpack pk
-
-    takeR :: Int -> [a] -> [a]
-    takeR n l = go (drop n l) l
-      where
-        go :: [a] -> [a] -> [a]
-        go [] r          = r
-        go (_:xs) (_:ys) = go xs ys
-        go _ []          = []
-
-keyPair' :: ED.SecretKey -> KeyPair
-keyPair' sk = keyPair sk (ED.toPublic sk)
-
-generateKeyPair :: MonadRandom m => m KeyPair
-generateKeyPair = keyPair' <$> ED.generateSecretKey
-
-
-data PublicKeyType
-  = PublicKeyTypeEd25519
-  deriving (Eq, Show, Enum, Bounded)
-
-instance Binary PublicKeyType where
-  get = label "PublicKeyType" getEnum
-  put = putEnum
-
-
-newtype PublicKey
-  = PublicKeyEd25519
-  { _publicKeyEd25519 :: ED.PublicKey
-  } deriving (Eq, BA.ByteArrayAccess)
-
-instance Show PublicKey where
-  show (PublicKeyEd25519 pk) =
-    "PublicKeyEd25519 {_publicKeyEd25519 = "
-    <> showByteString (BA.convert pk) <> "}"
-
-instance Binary PublicKey where
-  put (PublicKeyEd25519 edPk) = do
-    put PublicKeyTypeEd25519
-    let k :: FixLen 32 ByteString
-        k = FixLen (BA.convert edPk)
-    put k
-  get = label "PublicKey"
-      $ get >>= \case PublicKeyTypeEd25519 -> do
-                        fl :: FixLen 32 ByteString <- get
-                        let bs = unFixLen fl
-                        key <- ED.publicKey bs & CE.onCryptoFailure (fail . show) pure
-                        pure $ PublicKeyEd25519 key
-
-
-data SignerKeyType
-  = SignerKeyTypeEd25519
-  | SignerKeyTypePreAuthTx
-  | SignerKeyTypeHashX
-  deriving (Eq, Show, Enum, Bounded)
-
-instance Binary SignerKeyType where
-  get = label "SignerKeyType" getEnum
-  put = putEnum
-
-signerKeyType :: SignerKey -> SignerKeyType
-signerKeyType = \case
-  SignerKeyEd25519 _   -> SignerKeyTypeEd25519
-  SignerKeyPreAuthTx _ -> SignerKeyTypePreAuthTx
-  SignerKeyHashX _     -> SignerKeyTypeHashX
-
-
-data SignerKey
-  = SignerKeyEd25519 Word256
-  | SignerKeyPreAuthTx Word256
-  | SignerKeyHashX Word256
-  deriving (Eq, Show)
-
-instance Binary SignerKey where
-  get = label "SignerKey" $ do
-    kt <- get
-    get <&> case kt of
-      SignerKeyTypeEd25519   -> SignerKeyEd25519
-      SignerKeyTypePreAuthTx -> SignerKeyPreAuthTx
-      SignerKeyTypeHashX     -> SignerKeyHashX
-  put (SignerKeyEd25519 w256)   = put SignerKeyTypeEd25519   >> put w256
-  put (SignerKeyPreAuthTx w256) = put SignerKeyTypePreAuthTx >> put w256
-  put (SignerKeyHashX w256)     = put SignerKeyTypeHashX     >> put w256
 
 
 newtype Threshold
@@ -139,62 +58,6 @@ newtype Threshold
 instance Binary Threshold where
   get = label "Threshold" $ Threshold <$> get
   put = put . _threshold
-
-
-newtype AssetCode4
-  = AssetCode4
-  { _assetCode4 :: Word32
-  } deriving (Eq, Show)
-
-instance Binary AssetCode4 where
-  get = label "AssetCode4" $ AssetCode4 <$> get
-  put = put . _assetCode4
-
-
-newtype AssetCode12
-  = AssetCode12
-  { _assetCode12 :: Word96
-  } deriving (Eq, Show)
-
-instance Binary AssetCode12 where
-  get = label "AssetCode12" $ AssetCode12 <$> get
-  put = put . _assetCode12
-
-
-data AssetType
-  = AssetTypeNative
-  | AssetTypeCreditAlphanum4
-  | AssetTypeCreditAlphanum12
-  deriving (Eq, Show, Enum, Bounded)
-
-instance Binary AssetType where
-  get = label "AssetType" getEnum
-  put = putEnum
-
-assetType :: Asset -> AssetType
-assetType = \case
-  AssetNative -> AssetTypeNative
-  AssetCreditAlphanum4 _ _  -> AssetTypeCreditAlphanum4
-  AssetCreditAlphanum12 _ _ -> AssetTypeCreditAlphanum12
-
-
-data Asset
-  = AssetNative
-  | AssetCreditAlphanum4 AssetCode4 PublicKey
-  | AssetCreditAlphanum12 AssetCode12 PublicKey
-  deriving (Eq, Show)
-
-instance Binary Asset where
-  get = label "Asset" $ get >>= \case
-    AssetTypeNative           -> pure AssetNative
-    AssetTypeCreditAlphanum4  -> AssetCreditAlphanum4 <$> get <*> get
-    AssetTypeCreditAlphanum12 -> AssetCreditAlphanum12 <$> get <*> get
-  put AssetNative = put AssetTypeNative
-  put (AssetCreditAlphanum4 code pk) =
-    put AssetTypeCreditAlphanum4  >> put code >> put pk
-  put (AssetCreditAlphanum12 code pk) =
-    put AssetTypeCreditAlphanum12 >> put code >> put pk
-
 
 data Price
   = Price
@@ -400,23 +263,21 @@ instance Binary ChangeTrustOp where
 data AllowTrustOp
   = AllowTrustOp
   { _trustor   :: PublicKey
-  , _asset     :: Either AssetCode4 AssetCode12
+  , _asset     :: AssetCode
   , _authorize :: Bool
   } deriving (Eq, Show)
 
 instance Binary AllowTrustOp where
   put op = do
-    op & put . _trustor
-    either (put . (AssetTypeCreditAlphanum4,))
-           (put . (AssetTypeCreditAlphanum12,))
-           $ _asset (op :: AllowTrustOp)
+    put $ _trustor op
+    putAssetCode $ _asset (op :: AllowTrustOp)
     op & put . Padded . _authorize
   get = label "AllowTrustOp" $ do
     trustor <- get
     asset <- get >>= \case
-      AssetTypeNative -> fail "Can't allow trust for a native asset"
-      AssetTypeCreditAlphanum4  -> fmap Left  (get :: Get AssetCode4)
-      AssetTypeCreditAlphanum12 -> fmap Right (get :: Get AssetCode12)
+      XdrAssetTypeNative -> fail "Can't allow trust for a native asset"
+      XdrAssetTypeCreditAlphanum4 -> getAssetCode4
+      XdrAssetTypeCreditAlphanum12 -> getAssetCode12
     authorize <- fmap unPadded get
     pure $ AllowTrustOp trustor asset authorize
 
@@ -573,15 +434,6 @@ instance Binary Transaction where
     <*> getVarLen (Proxy :: Proxy 100) -- operations
     <*  skip 4                         -- ext
 
-newtype SignatureHint
-  = SignatureHint
-  { _signatureHint :: Word32
-  } deriving (Eq, Binary)
-
-instance Show SignatureHint where
-  show (SignatureHint w) = "SignatureHint "
-    <> showByteString (BS.pack $ word32ToBytes w)
-
 
 newtype Signature
   = Signature
@@ -589,7 +441,7 @@ newtype Signature
   } deriving (Eq)
 
 instance Show Signature where
-  show (Signature ed) = "Signature " <> showByteString (BA.convert ed)
+  show (Signature ed) = "Signature " <> BS.showByteString (BA.convert ed)
 
 instance Binary Signature where
   put (Signature bs) = put (VarLen bs :: VarLen 64 ED.Signature)
@@ -623,15 +475,16 @@ instance Binary EnvelopeType where
 
 newtype Hash
   = Hash
-  { _hash :: ByteString
+  { _hash :: Static ByteString 32
   } deriving (Eq)
 
 instance Show Hash where
-  show (Hash bs) = "Hash {_hash = " <> showByteString bs <> "}"
+  show (Hash bs) =
+    "Hash {_hash = " <> BS.showByteString (S.unwrap bs) <> "}"
 
 instance Binary Hash where
-  put (Hash bs) = put (FixLen bs :: FixLen 32 ByteString)
-  get = label "Hash" $ Hash <$> getFixLen (Proxy :: Proxy 32)
+  put = putFixLenByteString 32 . S.unwrap . _hash
+  get = label "Hash" $ Hash . S.unsafeCreate <$> getByteString 32
 
 data Network
   = Public

@@ -1,7 +1,5 @@
 module Hedgehog.Gen.Extended
   ( module Hedgehog.Gen
-  , word96
-  , word256
   , expWord32
   , expWord64
   , expInt32
@@ -11,19 +9,12 @@ module Hedgehog.Gen.Extended
 
 import           Protolude      hiding (either)
 
-import           Data.LargeWord (Word256, Word96)
 import           Hedgehog
 import           Hedgehog.Gen
 import qualified Hedgehog.Range as Range
 
 either :: MonadGen m => m a -> m b -> m (Either a b)
 either a b = choice [fmap Left a, fmap Right b]
-
-word96 :: Range Word96 -> Gen Word96
-word96 = integral
-
-word256 :: Range Word256 -> Gen Word256
-word256 = integral
 
 expWord32 :: Gen Word32
 expWord32 = word32 Range.exponentialBounded

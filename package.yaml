@@ -71,10 +71,11 @@ library:
   - bytestring
   - binary
   - cryptonite
-  - largeword
   - lens
   - memory
   - semigroups
+  - static-text
+  - text
   exposed-modules:
   - Stellar
   - Stellar.Key.Parser
@@ -95,10 +96,10 @@ tests:
     - binary
     - bytestring
     - cryptonite
-    - largeword
     - lens
     - protolude
     - stellar-core
+    - static-text
     - hedgehog
     ghc-options:
     - -threaded

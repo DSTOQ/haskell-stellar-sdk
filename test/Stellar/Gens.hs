@@ -2,12 +2,14 @@ module Stellar.Gens where
 
 import           Crypto.Error           (throwCryptoError)
 import qualified Crypto.PubKey.Ed25519  as ED
+import qualified Data.StaticText        as S
 import           Hedgehog
 import qualified Hedgehog.Gen.Extended  as Gen
 import qualified Hedgehog.Range         as Range
 import           Protolude
 import           Stellar.Types
 import           Stellar.Types.Internal
+
 
 genSecretKey :: Gen ED.SecretKey
 genSecretKey = throwCryptoError . ED.secretKey
@@ -30,27 +32,25 @@ genSignerKeyType :: Gen SignerKeyType
 genSignerKeyType = Gen.enumBounded
 
 genSignerKey :: Gen SignerKey
-genSignerKey = Gen.element constructors <*> Gen.word256 Range.exponentialBounded
+genSignerKey = Gen.element constructors <*> Gen.bytes (Range.singleton 32)
   where constructors = [SignerKeyEd25519, SignerKeyPreAuthTx, SignerKeyHashX]
 
 genThreshold :: Gen Threshold
 genThreshold = Threshold <$> Gen.expWord32
 
-genAssetCode4 :: Gen AssetCode4
-genAssetCode4 = AssetCode4 <$> Gen.expWord32
-
-genAssetCode12 :: Gen AssetCode12
-genAssetCode12 = AssetCode12 <$> Gen.word96 Range.exponentialBounded
+genAssetCode :: Gen AssetCode
+genAssetCode = unsafeAssetCode . toS
+  <$> Gen.text (Range.linear 1 12) Gen.alphaNum
 
 genAssetType :: Gen AssetType
 genAssetType = Gen.enumBounded
 
+genXdrAssetType :: Gen XdrAssetType
+genXdrAssetType = Gen.enumBounded
+
 genAsset :: Gen Asset
 genAsset = Gen.choice
-  [ pure AssetNative
-  , AssetCreditAlphanum4 <$> genAssetCode4 <*> genPublicKey
-  , AssetCreditAlphanum12 <$> genAssetCode12 <*> genPublicKey
-  ]
+  [pure AssetNative, AssetCreditAlphanum <$> genAssetCode <*> genPublicKey]
 
 genPrice :: Gen Price
 genPrice = Price <$> Gen.expInt32 <*> Gen.expInt32
@@ -67,7 +67,7 @@ genTimeBounds = TimeBounds
   <*> Gen.maybe (Gen.filter (> 0) $ Gen.word64 Range.exponentialBounded)
 
 genHash :: Gen Hash
-genHash = Hash <$> Gen.bytes (Range.singleton 32)
+genHash = Hash . S.unsafeCreate <$> Gen.bytes (Range.singleton 32)
 
 genMemo :: Gen Memo
 genMemo = Gen.choice
@@ -144,7 +144,7 @@ genChangeTrustOp = ChangeTrustOp
 genAllowTrustOp :: Gen AllowTrustOp
 genAllowTrustOp = AllowTrustOp
   <$> genPublicKey
-  <*> Gen.either genAssetCode4 genAssetCode12
+  <*> genAssetCode
   <*> Gen.bool
 
 genDataValue :: Gen DataValue

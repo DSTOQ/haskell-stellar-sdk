@@ -6,10 +6,12 @@ module Data.Binary.Extended
   , getEnum
   , putEnum
   , Padded (..)
-  , putPaddedByteString
+  , putVarLenByteString
+  , putFixLenByteString
   , padding
   ) where
 
+import           Control.Monad   (fail)
 import           Data.Binary
 import           Data.Binary.Get (getWord32be)
 import           Data.Binary.Put (putByteString, putWord32be)
@@ -28,12 +30,21 @@ padding p l = m - l
   m = p * if r == 0 then q else q + 1
   (q, r) = l `quotRem` p
 
-putPaddedByteString :: ByteString -> Put
-putPaddedByteString bs = do
+putVarLenByteString :: Int -> ByteString -> Put
+putVarLenByteString cap bs = do
   let len = BS.length bs
-      pad = padding 4 len
-  putWord32be $ fromIntegral len
-  putByteString $ bs <> BS.replicate pad 0
+  if len <= cap
+    then putWord32be (fromIntegral len)
+      >> putByteString (bs <> BS.replicate (padding 4 len) 0)
+    else fail $ "ByteString actual length (" <> show len
+             <> ") exceeds declared length " <> show cap
+
+putFixLenByteString :: Int -> ByteString -> Put
+putFixLenByteString cap bs
+  | BS.length bs == cap = putByteString bs
+  | otherwise = fail $ "ByteString actual length (" <> show (BS.length bs)
+                  <> ") differs from declared length " <> show cap
+
 
 newtype Padded a
   = Padded
