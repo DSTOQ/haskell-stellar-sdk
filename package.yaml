@@ -67,7 +67,6 @@ library:
   - base >= 4.9 && < 5
   - protolude
   - base16-bytestring
-  - base32string
   - bytestring
   - binary
   - cryptonite
@@ -100,6 +99,7 @@ tests:
     - protolude
     - stellar-core
     - static-text
+    - text
     - hedgehog
     ghc-options:
     - -threaded

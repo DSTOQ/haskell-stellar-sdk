@@ -3,12 +3,12 @@ module Stellar.Key.Printer
   , printSecretKey
   ) where
 
-import qualified Crypto.PubKey.Ed25519     as ED
-import qualified Data.Base32String.Default as B32
-import qualified Data.ByteArray            as BA
-import qualified Data.ByteString           as BS
-import           Data.Crc16                (crc16xmodem)
-import           Data.Word.Extended        (word16ToBytes)
+import qualified Crypto.PubKey.Ed25519   as ED
+import qualified Data.ByteArray          as BA
+import           Data.ByteArray.Encoding (Base (Base32), convertToBase)
+import qualified Data.ByteString         as BS
+import           Data.Crc16              (crc16xmodem)
+import           Data.Word.Extended      (word16ToBytes)
 import           Protolude
 import           Stellar.Key.Version
 
@@ -21,8 +21,8 @@ printSecretKey = toText Seed . BA.convert
 
 toText :: KeyVersion -> ByteString -> Text
 toText version
-  = B32.toText
-  . B32.fromBytes
+  = (toS :: ByteString -> Text)
+  . convertToBase Base32
   . appendChecksum
   . BS.cons (keyVersionByte version)
   . BA.convert

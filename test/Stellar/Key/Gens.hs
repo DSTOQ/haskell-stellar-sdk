@@ -1,9 +1,14 @@
+{-# LANGUAGE ExistentialQuantification #-}
+{-# LANGUAGE ExplicitForAll            #-}
+{-# LANGUAGE UnicodeSyntax             #-}
+
 module Stellar.Key.Gens where
 
 import           Hedgehog
 import qualified Hedgehog.Gen.Extended as Gen
+import qualified Prelude
 import           Protolude
-
+import qualified Stellar.Key.Parser    as Parser
 
 newtype SecretKeyText = SecretKeyText Text deriving (Eq, Show)
 
@@ -38,3 +43,12 @@ genPublicKeyText = PublicKeyText <$> Gen.element
   , "GCKTBRR7KIR34J2U6MIL3O2UCQT6LW7U25TFX7ZVBHH2MLCSDCRF64PD"
   , "GDV5U356L5MZF4J6NM5UWWXCMEJRZU35YWLWY5E7PMQKBF64VW36KCDE"
   ]
+
+
+data KeyParser = ∀ o. KeyParser (Text -> Either Parser.Error o)
+instance Show KeyParser where show _ = "<key parser>"
+
+genKeyParser :: Gen KeyParser
+genKeyParser = Gen.element [ KeyParser Parser.parseSecretKey
+                           , KeyParser Parser.parsePublicKey
+                           ]
