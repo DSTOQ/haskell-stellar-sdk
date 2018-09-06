@@ -24,7 +24,7 @@ signTransactionEnvelope network keys envelope =
 
 signTransaction :: Network -> KeyPair -> Transaction -> DecoratedSignature
 signTransaction network keys tx =
-  let secret = keys ^. L.secretKey
+  let secret = keys ^. (L.secretKey . L.secretKeyEd25519)
       public = keys ^. (L.publicKey . L.publicKeyEd25519)
       payload = txSignaturePayload network tx
       signature = Signature $ ED.sign secret public payload

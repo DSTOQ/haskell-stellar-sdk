@@ -15,12 +15,13 @@ import           Data.Word.Extended      (word16FromBytes)
 import           Prelude                 (String)
 import           Protolude
 import           Stellar.Key.Version
+import           Stellar.Types.Key
 
-parsePublicKey :: Text -> Either Error ED.PublicKey
-parsePublicKey = fromText AccountId ED.publicKey
+parsePublicKey :: Text -> Either Error PublicKey
+parsePublicKey = fmap PublicKeyEd25519 . fromText AccountId ED.publicKey
 
-parseSecretKey :: Text -> Either Error ED.SecretKey
-parseSecretKey = fromText Seed ED.secretKey
+parseSecretKey :: Text -> Either Error SecretKey
+parseSecretKey = fmap SecretKeyEd25519 . fromText Seed ED.secretKey
 
 data Error
   = InvalidInputLength
@@ -30,9 +31,12 @@ data Error
   | CryptoError CryptoError
   deriving (Eq, Show)
 
-fromText :: KeyVersion -> (ByteString -> CryptoFailable k) -> Text -> Either Error k
-fromText ver f = getKeyBytes ver
-               >=> onCryptoFailure (throwError . CryptoError) pure . f
+fromText
+  :: KeyVersion
+  -> (ByteString -> CryptoFailable k)
+  -> Text -> Either Error k
+fromText ver f =
+  getKeyBytes ver >=> onCryptoFailure (throwError . CryptoError) pure . f
 
 fromBase32 :: ByteString -> Either Error ByteString
 fromBase32 = left InvalidBase32Encoding . convertFromBase Base32

@@ -37,4 +37,5 @@ makeFieldsNoPrefix ''Asset
 makeFieldsNoPrefix ''Threshold
 makeFieldsNoPrefix ''SignerKey
 makeFieldsNoPrefix ''PublicKey
+makeFieldsNoPrefix ''SecretKey
 makeFieldsNoPrefix ''KeyPair

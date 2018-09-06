@@ -26,7 +26,7 @@ instance Show SignatureHint where
 
 data KeyPair
   = KeyPair
-  { _secretKey :: ED.SecretKey
+  { _secretKey :: SecretKey
   , _publicKey :: PublicKey
   , _hint      :: SignatureHint
   } deriving (Eq)
@@ -39,7 +39,7 @@ instance Show KeyPair where
     <> "}"
 
 keyPair :: ED.SecretKey -> ED.PublicKey -> KeyPair
-keyPair sk pk = KeyPair sk (PublicKeyEd25519 pk) hint
+keyPair sk pk = KeyPair (SecretKeyEd25519 sk) (PublicKeyEd25519 pk) hint
   where
     hint :: SignatureHint
     hint = SignatureHint $ word32FromBytes $ takeR 4 $ BA.unpack pk
@@ -87,6 +87,11 @@ instance Binary PublicKey where
                 bs <- getByteString 32
                 key <- ED.publicKey bs & CE.onCryptoFailure (fail . show) pure
                 pure $ PublicKeyEd25519 key
+
+newtype SecretKey
+  = SecretKeyEd25519
+  { _secretKeyEd25519 :: ED.SecretKey
+  } deriving (Eq, Show, BA.ByteArrayAccess)
 
 
 data SignerKeyType
