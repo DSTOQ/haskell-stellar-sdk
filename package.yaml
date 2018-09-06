@@ -72,6 +72,7 @@ library:
   - cryptonite
   - lens
   - memory
+  - newtype
   - semigroups
   - static-text
   - text
@@ -96,6 +97,7 @@ tests:
     - bytestring
     - cryptonite
     - lens
+    - newtype
     - protolude
     - stellar-core
     - static-text

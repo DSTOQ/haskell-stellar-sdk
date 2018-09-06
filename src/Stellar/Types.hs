@@ -48,12 +48,17 @@ import           Protolude              hiding (get, put, show)
 import           Stellar.Types.Asset
 import           Stellar.Types.Key
 import           Stellar.Types.Internal
+import           Control.Newtype          (Newtype, pack, unpack)
 
 
 newtype Threshold
   = Threshold
   { _threshold :: Word32
   } deriving (Eq, Show)
+
+instance Newtype Threshold Word32 where
+  pack = Threshold
+  unpack = _threshold
 
 instance Binary Threshold where
   get = label "Threshold" $ Threshold <$> get
@@ -73,11 +78,19 @@ newtype Fee
   { _fee :: Word32
   } deriving (Eq, Show, Binary)
 
+instance Newtype Fee Word32 where
+  pack = Fee
+  unpack = _fee
+
 
 newtype SequenceNumber
   = SequenceNumber
   { _sequenceNumber :: Int64
   } deriving (Eq, Show, Binary)
+
+instance Newtype SequenceNumber Int64 where
+  pack = SequenceNumber
+  unpack = _sequenceNumber
 
 
 data MemoType
@@ -175,6 +188,10 @@ newtype OfferId
   { _offerId :: Word64
   } deriving (Eq, Show, Binary)
 
+instance Newtype OfferId Word64 where
+  pack = OfferId
+  unpack = _offerId
+
 
 data ManageOfferOp
   = ManageOfferOp
@@ -203,6 +220,10 @@ newtype HomeDomain
   = HomeDomain
   { _homeDomain :: Text
   } deriving (Eq, Show)
+
+instance Newtype HomeDomain Text where
+  pack = HomeDomain
+  unpack = _homeDomain
 
 instance Binary HomeDomain where
   put (HomeDomain t) = put (VarLen t :: VarLen 32 Text)
@@ -440,12 +461,18 @@ newtype Signature
   { _signature :: ED.Signature
   } deriving (Eq)
 
+instance Newtype Signature ED.Signature where
+  pack = Signature
+  unpack = _signature
+
 instance Show Signature where
-  show (Signature ed) = "Signature " <> BS.showByteString (BA.convert ed)
+  show sig = "Signature {_signature = "
+    <> show (BS.showByteString (BA.convert (unpack sig)))
+    <> "}"
 
 instance Binary Signature where
-  put (Signature bs) = put (VarLen bs :: VarLen 64 ED.Signature)
-  get = label "Signature" $ Signature <$> getVarLen (Proxy :: Proxy 64)
+  put sig = put (VarLen (unpack sig) :: VarLen 64 ED.Signature)
+  get = label "Signature" $ pack <$> getVarLen (Proxy :: Proxy 64)
 
 
 data DecoratedSignature
@@ -478,13 +505,18 @@ newtype Hash
   { _hash :: Static ByteString 32
   } deriving (Eq)
 
+instance Newtype Hash (Static ByteString 32) where
+  pack = Hash
+  unpack = _hash
+
 instance Show Hash where
   show (Hash bs) =
     "Hash {_hash = " <> BS.showByteString (S.unwrap bs) <> "}"
 
 instance Binary Hash where
   put = putFixLenByteString 32 . S.unwrap . _hash
-  get = label "Hash" $ Hash . S.unsafeCreate <$> getByteString 32
+  get = label "Hash" $ pack . S.unsafeCreate <$> getByteString 32
+
 
 data Network
   = Public

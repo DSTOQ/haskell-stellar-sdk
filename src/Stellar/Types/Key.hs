@@ -2,22 +2,28 @@
 
 module Stellar.Types.Key where
 
-import           Control.Monad          (fail)
-import qualified Crypto.Error           as CE
-import qualified Crypto.PubKey.Ed25519  as ED
-import           Crypto.Random.Types    (MonadRandom)
+import           Control.Monad            (fail)
+import           Control.Newtype          (Newtype, pack, unpack)
+import qualified Crypto.Error             as CE
+import qualified Crypto.PubKey.Ed25519    as ED
+import           Crypto.Random.Types      (MonadRandom)
 import           Data.Binary.Extended
-import           Data.Binary.Get        (label, getByteString)
-import qualified Data.ByteArray         as BA
-import qualified Data.ByteString.Extended        as BS
-import           Data.Word.Extended     (Word32, word32FromBytes, word32ToBytes)
-import           Prelude                (show)
-import           Protolude              hiding (get, put, show)
+import           Data.Binary.Get          (getByteString, label)
+import qualified Data.ByteArray           as BA
+import qualified Data.ByteString.Extended as BS
+import           Data.Word.Extended       (Word32, word32FromBytes,
+                                           word32ToBytes)
+import           Prelude                  (show)
+import           Protolude                hiding (get, put, show)
 
 newtype SignatureHint
   = SignatureHint
   { _signatureHint :: Word32
   } deriving (Eq, Binary)
+
+instance Newtype SignatureHint Word32 where
+  pack = SignatureHint
+  unpack = _signatureHint
 
 instance Show SignatureHint where
   show (SignatureHint w) = "SignatureHint "
@@ -38,8 +44,8 @@ instance Show KeyPair where
     <> ", _hint = " <> Prelude.show h
     <> "}"
 
-keyPair :: ED.SecretKey -> ED.PublicKey -> KeyPair
-keyPair sk pk = KeyPair (SecretKeyEd25519 sk) (PublicKeyEd25519 pk) hint
+keyPair :: SecretKey -> PublicKey -> KeyPair
+keyPair sk pk = KeyPair sk pk hint
   where
     hint :: SignatureHint
     hint = SignatureHint $ word32FromBytes $ takeR 4 $ BA.unpack pk
@@ -52,11 +58,12 @@ keyPair sk pk = KeyPair (SecretKeyEd25519 sk) (PublicKeyEd25519 pk) hint
         go (_:xs) (_:ys) = go xs ys
         go _ []          = []
 
-keyPair' :: ED.SecretKey -> KeyPair
-keyPair' sk = keyPair sk (ED.toPublic sk)
+keyPair' :: SecretKey -> KeyPair
+keyPair' sk@(SecretKeyEd25519 edsk) =
+  keyPair sk $ PublicKeyEd25519 $ ED.toPublic edsk
 
 generateKeyPair :: MonadRandom m => m KeyPair
-generateKeyPair = keyPair' <$> ED.generateSecretKey
+generateKeyPair = keyPair' . pack <$> ED.generateSecretKey
 
 
 data PublicKeyType
@@ -72,6 +79,10 @@ newtype PublicKey
   = PublicKeyEd25519
   { _publicKeyEd25519 :: ED.PublicKey
   } deriving (Eq, BA.ByteArrayAccess)
+
+instance Newtype PublicKey ED.PublicKey where
+  pack = PublicKeyEd25519
+  unpack = _publicKeyEd25519
 
 instance Show PublicKey where
   show (PublicKeyEd25519 pk) =
@@ -93,6 +104,9 @@ newtype SecretKey
   { _secretKeyEd25519 :: ED.SecretKey
   } deriving (Eq, Show, BA.ByteArrayAccess)
 
+instance Newtype SecretKey ED.SecretKey where
+  pack = SecretKeyEd25519
+  unpack = _secretKeyEd25519
 
 data SignerKeyType
   = SignerKeyTypeEd25519

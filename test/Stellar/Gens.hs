@@ -1,5 +1,6 @@
 module Stellar.Gens where
 
+import           Control.Newtype        (pack)
 import           Crypto.Error           (throwCryptoError)
 import qualified Crypto.PubKey.Ed25519  as ED
 import qualified Data.StaticText        as S
@@ -11,9 +12,13 @@ import           Stellar.Types
 import           Stellar.Types.Internal
 
 
-genSecretKey :: Gen ED.SecretKey
-genSecretKey = throwCryptoError . ED.secretKey
+
+genEdSecretKey :: Gen ED.SecretKey
+genEdSecretKey = throwCryptoError . ED.secretKey
   <$> Gen.bytes (Range.singleton 32)
+
+genSecretKey :: Gen SecretKey
+genSecretKey = pack <$> genEdSecretKey
 
 genEdPublicKey :: Gen ED.PublicKey
 genEdPublicKey = throwCryptoError . ED.publicKey
@@ -26,7 +31,7 @@ genPublicKeyType :: Gen PublicKeyType
 genPublicKeyType = Gen.enumBounded
 
 genPublicKey :: Gen PublicKey
-genPublicKey = PublicKeyEd25519 <$> genEdPublicKey
+genPublicKey = pack <$> genEdPublicKey
 
 genSignerKeyType :: Gen SignerKeyType
 genSignerKeyType = Gen.enumBounded
@@ -36,7 +41,7 @@ genSignerKey = Gen.element constructors <*> Gen.bytes (Range.singleton 32)
   where constructors = [SignerKeyEd25519, SignerKeyPreAuthTx, SignerKeyHashX]
 
 genThreshold :: Gen Threshold
-genThreshold = Threshold <$> Gen.expWord32
+genThreshold = pack <$> Gen.expWord32
 
 genAssetCode :: Gen AssetCode
 genAssetCode = unsafeAssetCode . toS
@@ -56,10 +61,10 @@ genPrice :: Gen Price
 genPrice = Price <$> Gen.expInt32 <*> Gen.expInt32
 
 genFee :: Gen Fee
-genFee = Fee <$> Gen.expWord32
+genFee = pack <$> Gen.expWord32
 
 genSequenceNumber :: Gen SequenceNumber
-genSequenceNumber = SequenceNumber <$> Gen.expInt64
+genSequenceNumber = pack <$> Gen.expInt64
 
 genTimeBounds :: Gen TimeBounds
 genTimeBounds = TimeBounds
@@ -67,7 +72,7 @@ genTimeBounds = TimeBounds
   <*> Gen.maybe (Gen.filter (> 0) $ Gen.word64 Range.exponentialBounded)
 
 genHash :: Gen Hash
-genHash = Hash . S.unsafeCreate <$> Gen.bytes (Range.singleton 32)
+genHash = pack . S.unsafeCreate <$> Gen.bytes (Range.singleton 32)
 
 genMemo :: Gen Memo
 genMemo = Gen.choice
@@ -104,7 +109,7 @@ genPathPaymentOp = PathPaymentOp
   <*> Gen.list (Range.linear 0 5) genAsset
 
 genOfferId :: Gen OfferId
-genOfferId = OfferId <$> Gen.expWord64
+genOfferId = pack <$> Gen.expWord64
 
 genManageOfferOp :: Gen ManageOfferOp
 genManageOfferOp = ManageOfferOp
@@ -122,7 +127,7 @@ genCreatePassiveOfferOp = CreatePassiveOfferOp
   <*> genPrice
 
 genHomeDomain :: Gen HomeDomain
-genHomeDomain = HomeDomain <$> Gen.text (Range.linear 1 32) Gen.ascii
+genHomeDomain = pack <$> Gen.text (Range.linear 1 32) Gen.ascii
 
 genSetOptionsOp :: Gen SetOptionsOp
 genSetOptionsOp = SetOptionsOp
@@ -202,10 +207,10 @@ genTransaction = Transaction
   <*> Gen.list (Range.exponential 1 10) genOperation
 
 genSignatureHint :: Gen SignatureHint
-genSignatureHint = SignatureHint <$> Gen.expWord32
+genSignatureHint = pack <$> Gen.expWord32
 
 genSignature :: Gen Signature
-genSignature = Signature . throwCryptoError . ED.signature
+genSignature = pack . throwCryptoError . ED.signature
   <$> Gen.bytes (Range.singleton 64)
 
 genDecoratedSignature :: Gen DecoratedSignature
