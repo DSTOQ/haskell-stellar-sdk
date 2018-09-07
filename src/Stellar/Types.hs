@@ -271,7 +271,7 @@ instance Binary SetOptionsOp where
 data ChangeTrustOp
   = ChangeTrustOp
   { _line  :: Asset
-  , _limit :: Maybe Stroop
+  , _limit :: Maybe Int64
   } deriving (Eq, Show)
 
 instance Binary ChangeTrustOp where
@@ -280,7 +280,7 @@ instance Binary ChangeTrustOp where
     op & put . fromMaybe 0 . _limit
   get = label "ChangeTrustOp" $ ChangeTrustOp
     <$> get
-    <*> (getInt64be <&> mfilter (> 0) . Just . pack)
+    <*> (getInt64be <&> mfilter (> 0) . Just)
 
 
 data AllowTrustOp

@@ -149,7 +149,7 @@ genSetOptionsOp = SetOptionsOp
 genChangeTrustOp :: Gen ChangeTrustOp
 genChangeTrustOp = ChangeTrustOp
   <$> genAsset
-  <*> (mfilter (> 0) <$> Gen.maybe genStroop)
+  <*> (mfilter (> 0) <$> Gen.maybe Gen.expInt64)
 
 genAllowTrustOp :: Gen AllowTrustOp
 genAllowTrustOp = AllowTrustOp
