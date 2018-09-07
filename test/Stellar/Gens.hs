@@ -96,21 +96,21 @@ genSigner = Signer
 genCreateAccountOp :: Gen CreateAccountOp
 genCreateAccountOp = CreateAccountOp
   <$> genPublicKey
-  <*> Gen.expInt64
+  <*> genStroop
 
 genPaymentOp :: Gen PaymentOp
 genPaymentOp = PaymentOp
   <$> genPublicKey
   <*> genAsset
-  <*> Gen.expInt64
+  <*> genStroop
 
 genPathPaymentOp :: Gen PathPaymentOp
 genPathPaymentOp = PathPaymentOp
   <$> genAsset
-  <*> Gen.expInt64
+  <*> genStroop
   <*> genPublicKey
   <*> genAsset
-  <*> Gen.expInt64
+  <*> genStroop
   <*> Gen.list (Range.linear 0 5) genAsset
 
 genOfferId :: Gen OfferId
@@ -120,7 +120,7 @@ genManageOfferOp :: Gen ManageOfferOp
 genManageOfferOp = ManageOfferOp
   <$> genAsset
   <*> genAsset
-  <*> Gen.expInt64
+  <*> genStroop
   <*> genPrice
   <*> genOfferId
 
@@ -128,7 +128,7 @@ genCreatePassiveOfferOp :: Gen CreatePassiveOfferOp
 genCreatePassiveOfferOp = CreatePassiveOfferOp
   <$> genAsset
   <*> genAsset
-  <*> Gen.expInt64
+  <*> genStroop
   <*> genPrice
 
 genHomeDomain :: Gen HomeDomain
@@ -149,7 +149,7 @@ genSetOptionsOp = SetOptionsOp
 genChangeTrustOp :: Gen ChangeTrustOp
 genChangeTrustOp = ChangeTrustOp
   <$> genAsset
-  <*> (mfilter (> 0) <$> Gen.maybe Gen.expInt64)
+  <*> (mfilter (> 0) <$> Gen.maybe genStroop)
 
 genAllowTrustOp :: Gen AllowTrustOp
 genAllowTrustOp = AllowTrustOp

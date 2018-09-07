@@ -142,7 +142,7 @@ instance Binary Signer
 data CreateAccountOp
   = CreateAccountOp
   { _destination     :: PublicKey
-  , _startingBalance :: Int64
+  , _startingBalance :: Stroop
   } deriving (Eq, Show, Generic)
 
 instance Binary CreateAccountOp
@@ -152,7 +152,7 @@ data PaymentOp
   = PaymentOp
   { _destination :: PublicKey
   , _asset       :: Asset
-  , _amount      :: Int64
+  , _amount      :: Stroop
   } deriving (Eq, Show, Generic)
 
 instance Binary PaymentOp
@@ -161,10 +161,10 @@ instance Binary PaymentOp
 data PathPaymentOp
   = PathPaymentOp
   { _sendAsset   :: Asset
-  , _sendMax     :: Int64
+  , _sendMax     :: Stroop
   , _destination :: PublicKey
   , _destAsset   :: Asset
-  , _destAmount  :: Int64
+  , _destAmount  :: Stroop
   , _path        :: [Asset]
   } deriving (Eq, Show)
 
@@ -199,7 +199,7 @@ data ManageOfferOp
   = ManageOfferOp
   { _selling :: Asset
   , _buying  :: Asset
-  , _amount  :: Int64
+  , _amount  :: Stroop
   , _price   :: Price
   , _offerId :: OfferId
   } deriving (Eq, Show, Generic)
@@ -211,7 +211,7 @@ data CreatePassiveOfferOp
   = CreatePassiveOfferOp
   { _selling :: Asset
   , _buying  :: Asset
-  , _amount  :: Int64
+  , _amount  :: Stroop
   , _price   :: Price
   } deriving (Eq, Show, Generic)
 
@@ -271,7 +271,7 @@ instance Binary SetOptionsOp where
 data ChangeTrustOp
   = ChangeTrustOp
   { _line  :: Asset
-  , _limit :: Maybe Int64
+  , _limit :: Maybe Stroop
   } deriving (Eq, Show)
 
 instance Binary ChangeTrustOp where
@@ -280,7 +280,7 @@ instance Binary ChangeTrustOp where
     op & put . fromMaybe 0 . _limit
   get = label "ChangeTrustOp" $ ChangeTrustOp
     <$> get
-    <*> (getInt64be <&> mfilter (> 0) . Just)
+    <*> (getInt64be <&> mfilter (> 0) . Just . pack)
 
 
 data AllowTrustOp

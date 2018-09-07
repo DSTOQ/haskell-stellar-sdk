@@ -12,7 +12,7 @@ import           Protolude
 
 newtype Stroop
   = Stroop Int64
-  deriving (Eq, Show, Enum, Binary)
+  deriving (Eq, Ord, Show, Enum, Num, Binary)
 
 instance Newtype Stroop Int64 where
   pack = Stroop
@@ -21,7 +21,7 @@ instance Newtype Stroop Int64 where
 
 newtype XLM
   = XLM Stroop
-  deriving (Eq, Show, Enum, Binary)
+  deriving (Eq, Ord, Show, Enum, Num, Binary)
 
 instance Newtype XLM Int64 where
   pack = stroopToXlm . pack
