@@ -86,7 +86,7 @@ instance Newtype Fee Word32 where
 newtype SequenceNumber
   = SequenceNumber
   { _sequenceNumber :: Int64
-  } deriving (Eq, Show, Binary)
+  } deriving (Eq, Show, Enum, Binary)
 
 instance Newtype SequenceNumber Int64 where
   pack = SequenceNumber
