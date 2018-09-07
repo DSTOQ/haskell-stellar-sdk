@@ -3,6 +3,7 @@ module Stellar.Types.Lumen
   , Stroop (..)
   , xlmToStroop
   , stroopToXlm
+  , xlm
   ) where
 
 import           Control.Newtype (Newtype, pack, unpack)
@@ -27,6 +28,9 @@ instance Newtype XLM Int64 where
   pack = stroopToXlm . pack
   unpack = unpack . xlmToStroop
 
+
+xlm :: Int64 -> XLM
+xlm i = pack (10000000 * i)
 
 xlmToStroop :: XLM -> Stroop
 xlmToStroop (XLM stroop) = stroop
