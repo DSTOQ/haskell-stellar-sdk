@@ -12,6 +12,11 @@ import           Stellar.Types
 import           Stellar.Types.Internal
 
 
+genStroop :: Gen Stroop
+genStroop = pack <$> Gen.expInt64
+
+genXLM :: Gen XLM
+genXLM = XLM <$> genStroop
 
 genEdSecretKey :: Gen ED.SecretKey
 genEdSecretKey = throwCryptoError . ED.secretKey

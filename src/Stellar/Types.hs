@@ -3,6 +3,7 @@
 module Stellar.Types
   ( module Stellar.Types.Asset
   , module Stellar.Types.Key
+  , module Stellar.Types.Lumen
   , AllowTrustOp (..)
   , ChangeTrustOp (..)
   , CreateAccountOp (..)
@@ -47,6 +48,7 @@ import           Prelude                ( show)
 import           Protolude              hiding (get, put, show)
 import           Stellar.Types.Asset
 import           Stellar.Types.Key
+import           Stellar.Types.Lumen
 import           Stellar.Types.Internal
 import           Control.Newtype          (Newtype, pack, unpack)
 
@@ -74,13 +76,13 @@ instance Binary Price
 
 
 newtype Fee
-  = Fee
-  { _fee :: Word32
+  = FeeStroops
+  { _feeStroops :: Word32
   } deriving (Eq, Show, Binary)
 
 instance Newtype Fee Word32 where
-  pack = Fee
-  unpack = _fee
+  pack = FeeStroops
+  unpack = _feeStroops
 
 
 newtype SequenceNumber

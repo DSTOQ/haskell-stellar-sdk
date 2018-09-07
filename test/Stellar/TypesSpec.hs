@@ -35,7 +35,9 @@ checks =
 
 gens :: [Genable]
 gens =
-  [ Genable ("PublicKeyType",        genPublicKeyType)
+  [ Genable ("Stroop",               genStroop)
+  , Genable ("XLM",                  genXLM)
+  , Genable ("PublicKeyType",        genPublicKeyType)
   , Genable ("PublicKey",            genPublicKey)
   , Genable ("SignerKeyType",        genSignerKeyType)
   , Genable ("SignerKey",            genSignerKey)
