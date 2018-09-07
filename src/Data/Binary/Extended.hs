@@ -18,6 +18,7 @@ import           Data.Binary.Put (putByteString, putWord32be)
 import           Data.ByteString as BS
 import           Protolude       hiding (get, put, putByteString)
 
+
 getEnum :: Enum a => Get a
 getEnum = getWord32be <&> toEnum . fromIntegral
 

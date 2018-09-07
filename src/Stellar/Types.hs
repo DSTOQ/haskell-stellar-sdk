@@ -23,6 +23,7 @@ module Stellar.Types
   , HomeDomain (..)
   , PathPaymentOp (..)
   , PaymentOp (..)
+  , NonNegativeInt64 (..)
   , Price (..)
   , SetOptionsOp (..)
   , SequenceNumber (..)
@@ -34,23 +35,40 @@ module Stellar.Types
   , TransactionEnvelope (..)
   ) where
 
-import           Control.Monad          (fail)
-import qualified Crypto.PubKey.Ed25519  as ED
+import           Control.Monad            (fail)
+import           Control.Newtype          (Newtype, pack, unpack)
+import qualified Crypto.PubKey.Ed25519    as ED
 import           Data.Binary.Extended
-import           Data.Binary.Get        (getByteString, getInt64be, label, skip)
-import           Data.Binary.Put        (putWord32be)
-import qualified Data.ByteArray         as BA
-import qualified Data.ByteString.Extended        as BS
-import           Data.StaticText        (Static)
-import qualified Data.StaticText        as S
-import           Data.Word.Extended     (Word32)
-import           Prelude                ( show)
-import           Protolude              hiding (get, put, show)
+import           Data.Binary.Get          (getByteString, getInt64be,
+                                           getWord64be, label, skip)
+import           Data.Binary.Put          (putWord32be)
+import qualified Data.ByteArray           as BA
+import qualified Data.ByteString.Extended as BS
+import           Data.StaticText          (Static)
+import qualified Data.StaticText          as S
+import           Data.Word.Extended       (Word32)
+import           Prelude                  (show)
+import           Protolude                hiding (get, put, show)
+import           Refined
 import           Stellar.Types.Asset
+import           Stellar.Types.Internal
 import           Stellar.Types.Key
 import           Stellar.Types.Lumen
-import           Stellar.Types.Internal
-import           Control.Newtype          (Newtype, pack, unpack)
+
+newtype NonNegativeInt64
+  = NonNegativeInt64 (Refined NonNegative Int64)
+  deriving (Eq, Show)
+
+instance Ord NonNegativeInt64 where
+  compare a b = unrefine (unpack a) `compare` unrefine (unpack b)
+
+instance Newtype NonNegativeInt64 (Refined NonNegative Int64) where
+  pack = NonNegativeInt64
+  unpack (NonNegativeInt64 r) = r
+
+instance Binary NonNegativeInt64 where
+  put = put . unrefine . unpack
+  get = label "NonNegativeInt64" $ getInt64be >>= refineFail <&> pack
 
 
 newtype Threshold
@@ -87,10 +105,10 @@ instance Newtype Fee Word32 where
 
 newtype SequenceNumber
   = SequenceNumber
-  { _sequenceNumber :: Int64
-  } deriving (Eq, Show, Enum, Binary)
+  { _sequenceNumber :: NonNegativeInt64
+  } deriving (Eq, Ord, Show, Binary)
 
-instance Newtype SequenceNumber Int64 where
+instance Newtype SequenceNumber NonNegativeInt64 where
   pack = SequenceNumber
   unpack = _sequenceNumber
 
@@ -152,7 +170,7 @@ data PaymentOp
   = PaymentOp
   { _destination :: PublicKey
   , _asset       :: Asset
-  , _amount      :: Stroop
+  , _amount      :: NonNegativeInt64
   } deriving (Eq, Show, Generic)
 
 instance Binary PaymentOp
@@ -161,10 +179,10 @@ instance Binary PaymentOp
 data PathPaymentOp
   = PathPaymentOp
   { _sendAsset   :: Asset
-  , _sendMax     :: Stroop
+  , _sendMax     :: NonNegativeInt64
   , _destination :: PublicKey
   , _destAsset   :: Asset
-  , _destAmount  :: Stroop
+  , _destAmount  :: NonNegativeInt64
   , _path        :: [Asset]
   } deriving (Eq, Show)
 
@@ -199,7 +217,7 @@ data ManageOfferOp
   = ManageOfferOp
   { _selling :: Asset
   , _buying  :: Asset
-  , _amount  :: Stroop
+  , _amount  :: NonNegativeInt64
   , _price   :: Price
   , _offerId :: OfferId
   } deriving (Eq, Show, Generic)
@@ -211,7 +229,7 @@ data CreatePassiveOfferOp
   = CreatePassiveOfferOp
   { _selling :: Asset
   , _buying  :: Asset
-  , _amount  :: Stroop
+  , _amount  :: NonNegativeInt64
   , _price   :: Price
   } deriving (Eq, Show, Generic)
 
@@ -271,16 +289,12 @@ instance Binary SetOptionsOp where
 data ChangeTrustOp
   = ChangeTrustOp
   { _line  :: Asset
-  , _limit :: Maybe Int64
+  , _limit :: NonNegativeInt64
   } deriving (Eq, Show)
 
 instance Binary ChangeTrustOp where
-  put op = do
-    op & put . _line
-    op & put . fromMaybe 0 . _limit
-  get = label "ChangeTrustOp" $ ChangeTrustOp
-    <$> get
-    <*> (getInt64be <&> mfilter (> 0) . Just)
+  put (ChangeTrustOp line limit) = put line >> put limit
+  get = label "ChangeTrustOp" $ ChangeTrustOp <$> get <*> get
 
 
 data AllowTrustOp
@@ -418,15 +432,14 @@ instance Binary Operation where
 data TimeBounds
   = TimeBounds
   { _minTime :: Word64
-  , _maxTime :: Maybe Word64 -- 0 here means no maxTime
+  , _maxTime :: Word64
   } deriving (Eq, Show)
 
 instance Binary TimeBounds where
-  get = label "TimeBounds" $ do
-    mn <- label "minTime" get
-    mx <- label "maxTime" get
-    pure $ TimeBounds mn $ if mx == 0 then Nothing else Just mx
-  put (TimeBounds mn mx) = put mn >> put (fromMaybe 0 mx)
+  get = label "TimeBounds" $ TimeBounds
+    <$> label "minTime" getWord64be
+    <*> label "maxTime" getWord64be
+  put (TimeBounds mn mx) = put mn >> put mx
 
 
 data Transaction

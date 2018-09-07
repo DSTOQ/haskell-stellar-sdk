@@ -73,6 +73,7 @@ library:
   - lens
   - memory
   - newtype
+  - refined
   - semigroups
   - static-text
   - text
@@ -99,6 +100,7 @@ tests:
     - lens
     - newtype
     - protolude
+    - refined
     - stellar-core
     - static-text
     - text

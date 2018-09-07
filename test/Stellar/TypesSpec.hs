@@ -2,7 +2,7 @@
 {-# LANGUAGE ExplicitForAll            #-}
 {-# LANGUAGE UnicodeSyntax             #-}
 
-module Stellar.TypesSpec (run) where
+module Stellar.TypesSpec where
 
 import           Data.Binary.Extended
 import qualified Data.ByteString.Lazy as BL
@@ -35,7 +35,8 @@ checks =
 
 gens :: [Genable]
 gens =
-  [ Genable ("Stroop",               genStroop)
+  [ Genable ("NonNegativeInt64",     genNonNegativeInt64)
+  , Genable ("Stroop",               genStroop)
   , Genable ("XLM",                  genXLM)
   , Genable ("PublicKeyType",        genPublicKeyType)
   , Genable ("PublicKey",            genPublicKey)

@@ -8,9 +8,14 @@ import           Hedgehog
 import qualified Hedgehog.Gen.Extended  as Gen
 import qualified Hedgehog.Range         as Range
 import           Protolude
+import           Refined
 import           Stellar.Types
 import           Stellar.Types.Internal
 
+genNonNegativeInt64 :: Gen NonNegativeInt64
+genNonNegativeInt64 = do
+  int64 <- Gen.int64 (Range.exponential 0 maxBound)
+  pure $ pack $ unsafeRefine int64
 
 genStroop :: Gen Stroop
 genStroop = pack <$> Gen.expInt64
@@ -69,12 +74,12 @@ genFee :: Gen Fee
 genFee = pack <$> Gen.expWord32
 
 genSequenceNumber :: Gen SequenceNumber
-genSequenceNumber = pack <$> Gen.expInt64
+genSequenceNumber = pack <$> genNonNegativeInt64
 
 genTimeBounds :: Gen TimeBounds
 genTimeBounds = TimeBounds
   <$> Gen.expWord64
-  <*> Gen.maybe (Gen.filter (> 0) $ Gen.word64 Range.exponentialBounded)
+  <*> Gen.word64 Range.exponentialBounded
 
 genHash :: Gen Hash
 genHash = pack . S.unsafeCreate <$> Gen.bytes (Range.singleton 32)
@@ -102,15 +107,15 @@ genPaymentOp :: Gen PaymentOp
 genPaymentOp = PaymentOp
   <$> genPublicKey
   <*> genAsset
-  <*> genStroop
+  <*> genNonNegativeInt64
 
 genPathPaymentOp :: Gen PathPaymentOp
 genPathPaymentOp = PathPaymentOp
   <$> genAsset
-  <*> genStroop
+  <*> genNonNegativeInt64
   <*> genPublicKey
   <*> genAsset
-  <*> genStroop
+  <*> genNonNegativeInt64
   <*> Gen.list (Range.linear 0 5) genAsset
 
 genOfferId :: Gen OfferId
@@ -120,7 +125,7 @@ genManageOfferOp :: Gen ManageOfferOp
 genManageOfferOp = ManageOfferOp
   <$> genAsset
   <*> genAsset
-  <*> genStroop
+  <*> genNonNegativeInt64
   <*> genPrice
   <*> genOfferId
 
@@ -128,7 +133,7 @@ genCreatePassiveOfferOp :: Gen CreatePassiveOfferOp
 genCreatePassiveOfferOp = CreatePassiveOfferOp
   <$> genAsset
   <*> genAsset
-  <*> genStroop
+  <*> genNonNegativeInt64
   <*> genPrice
 
 genHomeDomain :: Gen HomeDomain
@@ -147,9 +152,7 @@ genSetOptionsOp = SetOptionsOp
   <*> Gen.maybe genSigner
 
 genChangeTrustOp :: Gen ChangeTrustOp
-genChangeTrustOp = ChangeTrustOp
-  <$> genAsset
-  <*> (mfilter (> 0) <$> Gen.maybe Gen.expInt64)
+genChangeTrustOp = ChangeTrustOp <$> genAsset <*> genNonNegativeInt64
 
 genAllowTrustOp :: Gen AllowTrustOp
 genAllowTrustOp = AllowTrustOp
