@@ -27,6 +27,7 @@ module Stellar.Types
   , Price (..)
   , SetOptionsOp (..)
   , SequenceNumber (..)
+  , bumpSequenceNumber
   , Signature (..)
   , Signer (..)
   , TimeBounds (..)
@@ -54,10 +55,13 @@ import           Stellar.Types.Asset
 import           Stellar.Types.Internal
 import           Stellar.Types.Key
 import           Stellar.Types.Lumen
+import           Text.Read                (readListPrec, readListPrecDefault,
+                                           readPrec)
+
 
 newtype NonNegativeInt64
   = NonNegativeInt64 (Refined NonNegative Int64)
-  deriving (Eq, Show)
+  deriving (Eq, Show, Read)
 
 instance Ord NonNegativeInt64 where
   compare a b = unrefine (unpack a) `compare` unrefine (unpack b)
@@ -108,9 +112,20 @@ newtype SequenceNumber
   { _sequenceNumber :: NonNegativeInt64
   } deriving (Eq, Ord, Show, Binary)
 
+instance Read SequenceNumber where
+  readPrec = do
+    i <- readPrec
+    r <- either (fail . show) pure $ refine i
+    pure $ pack $ pack r
+  readListPrec = readListPrecDefault
+
 instance Newtype SequenceNumber NonNegativeInt64 where
   pack = SequenceNumber
   unpack = _sequenceNumber
+
+bumpSequenceNumber :: Int64 -> SequenceNumber -> SequenceNumber
+bumpSequenceNumber i =
+  pack . pack . unsafeRefine . (+ i) . unrefine . unpack . unpack
 
 
 data MemoType
