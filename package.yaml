@@ -96,8 +96,10 @@ tests:
     - base >= 4.9 && < 5
     - binary
     - bytestring
+    - base64-bytestring
     - cryptonite
     - lens
+    - memory
     - newtype
     - protolude
     - refined

@@ -27,6 +27,7 @@ module Stellar.Types
   , Price (..)
   , SetOptionsOp (..)
   , SequenceNumber (..)
+  , unsafeSequenceNumber
   , bumpSequenceNumber
   , Signature (..)
   , Signer (..)
@@ -41,7 +42,7 @@ import           Control.Newtype          (Newtype, pack, unpack)
 import qualified Crypto.PubKey.Ed25519    as ED
 import           Data.Binary.Extended
 import           Data.Binary.Get          (getByteString, getInt64be,
-                                           getWord64be, label, skip)
+                                           getWord32be, getWord64be, label, skip)
 import           Data.Binary.Put          (putWord32be)
 import qualified Data.ByteArray           as BA
 import qualified Data.ByteString.Extended as BS
@@ -123,9 +124,11 @@ instance Newtype SequenceNumber NonNegativeInt64 where
   pack = SequenceNumber
   unpack = _sequenceNumber
 
+unsafeSequenceNumber :: Int64 -> SequenceNumber
+unsafeSequenceNumber = pack . pack . unsafeRefine
+
 bumpSequenceNumber :: Int64 -> SequenceNumber -> SequenceNumber
-bumpSequenceNumber i =
-  pack . pack . unsafeRefine . (+ i) . unrefine . unpack . unpack
+bumpSequenceNumber i = unsafeSequenceNumber . (+ i) . unrefine . unpack . unpack
 
 
 data MemoType
@@ -526,8 +529,9 @@ data EnvelopeType
   deriving (Eq, Show, Enum, Bounded)
 
 instance Binary EnvelopeType where
-  get = label "EnvelopeType" getEnum
-  put = putEnum
+  -- This enum index starts from 1 unlike all other enum constants!
+  get = label "EnvelopeType" $ getWord32be <&> toEnum . pred . fromIntegral
+  put = putWord32be . fromIntegral . succ . fromEnum
 
 
 newtype Hash
@@ -544,7 +548,7 @@ instance Show Hash where
     "Hash {_hash = " <> BS.showByteString (S.unwrap bs) <> "}"
 
 instance Binary Hash where
-  put = putFixLenByteString 32 . S.unwrap . _hash
+  put = putFixLenByteString 32 . S.unwrap . unpack
   get = label "Hash" $ pack . S.unsafeCreate <$> getByteString 32
 
 

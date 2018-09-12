@@ -34,14 +34,18 @@ signTransaction :: Network -> KeyPair -> Transaction -> DecoratedSignature
 signTransaction network keys tx =
   let secret = keys ^. (L.secretKey . L.secretKeyEd25519)
       public = keys ^. (L.publicKey . L.publicKeyEd25519)
-      payload = txSignaturePayload network tx
+      payload = txSignatureBase network tx
       signature = Signature $ ED.sign secret public payload
   in DecoratedSignature (keys ^. L.hint) signature
 
 
-txSignaturePayload :: Network -> Transaction -> ByteString
-txSignaturePayload net tx = sha256 . LBS.toStrict $ runPut $
-  put (networkHash net) >> put EnvelopeTypeTx >> put tx
+txSignatureBase :: Network -> Transaction -> ByteString
+txSignatureBase net tx = sha256 . LBS.toStrict $ bytes
+  where
+  bytes = runPut $ do
+    put (networkHash net)
+    put EnvelopeTypeTx
+    put tx
 
 networkHash :: Network -> Hash
 networkHash net = Hash $ case net of
