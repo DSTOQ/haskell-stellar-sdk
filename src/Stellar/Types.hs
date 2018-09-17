@@ -8,6 +8,7 @@ module Stellar.Types
   , ChangeTrustOp (..)
   , CreateAccountOp (..)
   , CreatePassiveOfferOp (..)
+  , DataValue (..)
   , DecoratedSignature (..)
   , EnvelopeType (..)
   , Fee (..)

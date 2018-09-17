@@ -1,8 +1,4 @@
-{-# LANGUAGE DataKinds           #-}
-{-# LANGUAGE FlexibleContexts    #-}
-{-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE StrictData          #-}
-
 
 module Stellar.Types.Internal where
 
