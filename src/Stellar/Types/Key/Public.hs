@@ -12,7 +12,8 @@ import           Control.Monad             (fail)
 import           Control.Newtype           (Newtype, pack, unpack)
 import qualified Crypto.Error              as CE
 import qualified Crypto.PubKey.Ed25519     as ED
-import           Data.Aeson                (FromJSON, parseJSON, withText)
+import           Data.Aeson                (FromJSON, ToJSON, Value (String),
+                                            parseJSON, toJSON, withText)
 import           Data.Binary.Extended
 import           Data.Binary.Get           (getByteString, label)
 import qualified Data.ByteArray            as BA
@@ -60,6 +61,9 @@ instance Binary PublicKey where
 instance FromJSON PublicKey where
   parseJSON = withText "Stellar Public Key" $
     either (fail . show) pure . parsePublicKey
+
+instance ToJSON PublicKey where
+  toJSON = String . printPublicKey
 
 
 parsePublicKey :: Text -> Either Error PublicKey
