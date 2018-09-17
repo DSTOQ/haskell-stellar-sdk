@@ -1,12 +1,12 @@
-module Stellar.Key.Version
+module Stellar.Types.Key.Version
   ( KeyVersion(..)
   , keyVersionByte
   , keyByteVersion
   ) where
 
-import           Data.Binary.Extended
-import           Data.Binary.Get      (label)
-import           Protolude
+import Data.Binary.Extended
+import Data.Binary.Get      (label)
+import Protolude
 
 data KeyVersion
   = AccountId

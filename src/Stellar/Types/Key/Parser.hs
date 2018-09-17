@@ -1,27 +1,16 @@
-module Stellar.Key.Parser
-  ( parsePublicKey
-  , parseSecretKey
-  , Error (..)
-  ) where
+module Stellar.Types.Key.Parser where
 
-import           Control.Arrow           (left)
-import           Crypto.Error            (CryptoError, CryptoFailable,
-                                          onCryptoFailure)
-import qualified Crypto.PubKey.Ed25519   as ED
-import           Data.ByteArray.Encoding (Base (Base32), convertFromBase)
-import qualified Data.ByteString         as BS
-import           Data.Crc16              (crc16xmodem)
-import           Data.Word.Extended      (word16FromBytes)
-import           Prelude                 (String)
+import           Control.Arrow             (left)
+import           Crypto.Error              (CryptoError, CryptoFailable,
+                                            onCryptoFailure)
+import           Data.ByteArray.Encoding   (Base (Base32), convertFromBase)
+import qualified Data.ByteString.Extended  as BS
+import           Data.Crc16                (crc16xmodem)
+import           Data.Word.Extended        (word16FromBytes)
+import           Prelude                   (String)
 import           Protolude
-import           Stellar.Key.Version
-import           Stellar.Types.Key
+import           Stellar.Types.Key.Version (KeyVersion, keyVersionByte)
 
-parsePublicKey :: Text -> Either Error PublicKey
-parsePublicKey = fmap PublicKeyEd25519 . fromText AccountId ED.publicKey
-
-parseSecretKey :: Text -> Either Error SecretKey
-parseSecretKey = fmap SecretKeyEd25519 . fromText Seed ED.secretKey
 
 data Error
   = InvalidInputLength

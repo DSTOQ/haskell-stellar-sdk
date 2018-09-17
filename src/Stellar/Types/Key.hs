@@ -1,10 +1,19 @@
 {-# LANGUAGE StrictData #-}
 
-module Stellar.Types.Key where
+module Stellar.Types.Key
+  ( module Stellar.Types.Key.Secret
+  , module Stellar.Types.Key.Public
+  , SignatureHint (..)
+  , SignerKey (..)
+  , SignerKeyType (..)
+  , signerKeyType
+  , KeyPair
+  , keyPair
+  , keyPair'
+  , generateKeyPair
+  ) where
 
-import           Control.Monad            (fail)
 import           Control.Newtype          (Newtype, pack, unpack)
-import qualified Crypto.Error             as CE
 import qualified Crypto.PubKey.Ed25519    as ED
 import           Crypto.Random.Types      (MonadRandom)
 import           Data.Binary.Extended
@@ -15,6 +24,10 @@ import           Data.Word.Extended       (Word32, word32FromBytes,
                                            word32ToBytes)
 import           Prelude                  (show)
 import           Protolude                hiding (get, put, show)
+import           Stellar.Types.Key.Parser
+import           Stellar.Types.Key.Public
+import           Stellar.Types.Key.Secret
+
 
 newtype SignatureHint
   = SignatureHint
@@ -65,48 +78,6 @@ keyPair' sk@(SecretKeyEd25519 edsk) =
 generateKeyPair :: MonadRandom m => m KeyPair
 generateKeyPair = keyPair' . pack <$> ED.generateSecretKey
 
-
-data PublicKeyType
-  = PublicKeyTypeEd25519
-  deriving (Eq, Show, Enum, Bounded)
-
-instance Binary PublicKeyType where
-  get = label "PublicKeyType" getEnum
-  put = putEnum
-
-
-newtype PublicKey
-  = PublicKeyEd25519
-  { _publicKeyEd25519 :: ED.PublicKey
-  } deriving (Eq, BA.ByteArrayAccess)
-
-instance Newtype PublicKey ED.PublicKey where
-  pack = PublicKeyEd25519
-  unpack = _publicKeyEd25519
-
-instance Show PublicKey where
-  show (PublicKeyEd25519 pk) =
-    "PublicKeyEd25519 {_publicKeyEd25519 = "
-    <> BS.showByteString (BA.convert pk) <> "}"
-
-instance Binary PublicKey where
-  put (PublicKeyEd25519 edPk) = do
-    put PublicKeyTypeEd25519
-    putFixLenByteString 32 $ BA.convert edPk
-  get = label "PublicKey" $ get
-    >>= \case PublicKeyTypeEd25519 -> do
-                bs <- getByteString 32
-                key <- ED.publicKey bs & CE.onCryptoFailure (fail . show) pure
-                pure $ PublicKeyEd25519 key
-
-newtype SecretKey
-  = SecretKeyEd25519
-  { _secretKeyEd25519 :: ED.SecretKey
-  } deriving (Eq, Show, BA.ByteArrayAccess)
-
-instance Newtype SecretKey ED.SecretKey where
-  pack = SecretKeyEd25519
-  unpack = _secretKeyEd25519
 
 data SignerKeyType
   = SignerKeyTypeEd25519

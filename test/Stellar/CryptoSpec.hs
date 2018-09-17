@@ -14,7 +14,6 @@ import           Hedgehog
 import           Protolude
 import           Stellar.Crypto
 import           Stellar.Gens
-import           Stellar.Key.Parser
 import qualified Stellar.Lenses          as L
 import           Stellar.Types
 

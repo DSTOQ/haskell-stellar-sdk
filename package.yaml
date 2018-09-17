@@ -63,6 +63,7 @@ default-extensions:
 library:
   source-dirs: src
   dependencies:
+  - aeson
   - array
   - base >= 4.9 && < 5
   - protolude
@@ -79,11 +80,10 @@ library:
   - text
   exposed-modules:
   - Stellar
-  - Stellar.Key.Parser
-  - Stellar.Key.Printer
   - Stellar.Lenses
   - Stellar.Crypto
   - Stellar.Types
+  - Stellar.Types.Key
   - Stellar.Types.Internal
   - Data.Binary.Extended
 

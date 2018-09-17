@@ -8,7 +8,7 @@ import           Hedgehog
 import qualified Hedgehog.Gen.Extended as Gen
 import qualified Prelude
 import           Protolude
-import qualified Stellar.Key.Parser    as Parser
+import           Stellar.Types.Key
 
 newtype SecretKeyText = SecretKeyText Text deriving (Eq, Show)
 
@@ -45,10 +45,10 @@ genPublicKeyText = PublicKeyText <$> Gen.element
   ]
 
 
-data KeyParser = ∀ o. KeyParser (Text -> Either Parser.Error o)
+data KeyParser = ∀ o. KeyParser (Text -> Either Error o)
 instance Show KeyParser where show _ = "<key parser>"
 
 genKeyParser :: Gen KeyParser
-genKeyParser = Gen.element [ KeyParser Parser.parseSecretKey
-                           , KeyParser Parser.parsePublicKey
+genKeyParser = Gen.element [ KeyParser parseSecretKey
+                           , KeyParser parsePublicKey
                            ]
