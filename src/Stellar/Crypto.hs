@@ -47,8 +47,8 @@ txSignatureBase net tx = sha256 . LBS.toStrict $ bytes
     put EnvelopeTypeTx
     put tx
 
-networkHash :: Network -> Hash
-networkHash net = Hash $ case net of
+networkHash :: Network -> Sha256
+networkHash net = Sha256 $ case net of
   Public  -> S.unsafeCreate $ sha256 "Public Global Stellar Network ; September 2015"
   Testnet -> S.unsafeCreate $ sha256 "Test SDF Network ; September 2015"
 

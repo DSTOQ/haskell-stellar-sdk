@@ -17,12 +17,13 @@ import           Data.Aeson                (FromJSON, ToJSON, Value (String),
 import           Data.Binary.Extended
 import           Data.Binary.Get           (getByteString, label)
 import qualified Data.ByteArray            as BA
-import qualified Data.ByteString.Extended  as BS
 import           Prelude                   (show)
 import           Protolude                 hiding (get, put, show)
 import           Stellar.Types.Key.Parser
 import           Stellar.Types.Key.Printer
 import           Stellar.Types.Key.Version (KeyVersion (AccountId))
+import           Text.Read.Extended        ((<++))
+import qualified Text.Read.Extended        as R
 
 
 data PublicKeyType
@@ -44,9 +45,14 @@ instance Newtype PublicKey ED.PublicKey where
   unpack = _publicKeyEd25519
 
 instance Show PublicKey where
-  show (PublicKeyEd25519 pk) =
-    "PublicKeyEd25519 {_publicKeyEd25519 = "
-    <> BS.showByteString (BA.convert pk) <> "}"
+  show = toS . printPublicKey
+
+instance Read PublicKey where
+  readPrec = do
+    g <- mfilter (== 'G') R.upperAz
+    rest <- mfilter ((== 55) . length) $ many $ R.upperAz <++ R.digit
+    either (fail . show) pure . parsePublicKey . toS $ g : rest
+  readListPrec = R.readListPrecDefault
 
 instance Binary PublicKey where
   put (PublicKeyEd25519 edPk) = do

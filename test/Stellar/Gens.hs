@@ -47,8 +47,11 @@ genSignerKeyType :: Gen SignerKeyType
 genSignerKeyType = Gen.enumBounded
 
 genSignerKey :: Gen SignerKey
-genSignerKey = Gen.element constructors <*> Gen.bytes (Range.singleton 32)
-  where constructors = [SignerKeyEd25519, SignerKeyPreAuthTx, SignerKeyHashX]
+genSignerKey = Gen.choice
+  [ SignerKeyEd25519 <$> genPublicKey
+  , SignerKeyPreAuthTx <$> genSha256
+  , SignerKeyHashX <$> genSha256
+  ]
 
 genThreshold :: Gen Threshold
 genThreshold = pack <$> Gen.expWord32
@@ -60,8 +63,8 @@ genAssetCode = unsafeAssetCode . toS
 genAssetType :: Gen AssetType
 genAssetType = Gen.enumBounded
 
-genXdrAssetType :: Gen XdrAssetType
-genXdrAssetType = Gen.enumBounded
+genPreciseAssetType :: Gen PreciseAssetType
+genPreciseAssetType = Gen.enumBounded
 
 genAsset :: Gen Asset
 genAsset = Gen.choice
@@ -81,16 +84,16 @@ genTimeBounds = TimeBounds
   <$> Gen.expWord64
   <*> Gen.word64 Range.exponentialBounded
 
-genHash :: Gen Hash
-genHash = pack . S.unsafeCreate <$> Gen.bytes (Range.singleton 32)
+genSha256 :: Gen Sha256
+genSha256 = pack . S.unsafeCreate <$> Gen.bytes (Range.singleton 32)
 
 genMemo :: Gen Memo
 genMemo = Gen.choice
   [ pure MemoNone
   , MemoText <$> Gen.bytes (Range.linear 0 27)
   , MemoId <$> Gen.expWord64
-  , MemoHash <$> genHash
-  , MemoReturn <$> genHash
+  , MemoHash <$> genSha256
+  , MemoReturn <$> genSha256
   ]
 
 genSigner :: Gen Signer

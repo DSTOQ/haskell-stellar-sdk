@@ -3,8 +3,8 @@
 module Stellar.Lenses where
 
 
-import           Control.Lens.TH
-import           Stellar.Types
+import Control.Lens.TH
+import Stellar.Types
 
 makeFieldsNoPrefix ''TransactionEnvelope
 makeFieldsNoPrefix ''DecoratedSignature
@@ -27,7 +27,6 @@ makeFieldsNoPrefix ''PaymentOp
 makeFieldsNoPrefix ''CreateAccountOp
 makeFieldsNoPrefix ''Signer
 makeFieldsNoPrefix ''Memo
-makeFieldsNoPrefix ''Hash
 makeFieldsNoPrefix ''SequenceNumber
 makeFieldsNoPrefix ''Fee
 makeFieldsNoPrefix ''Price

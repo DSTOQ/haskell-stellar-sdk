@@ -14,7 +14,6 @@ ghc-options:
 - -Wincomplete-record-updates
 - -Wincomplete-uni-patterns
 - -Wredundant-constraints
-# - -Werror
 - -Wimplicit-prelude
 - -Wtabs
 - -Wmissing-local-signatures
@@ -67,7 +66,8 @@ library:
   - array
   - base >= 4.9 && < 5
   - protolude
-  - base16-bytestring
+  - base64-bytestring
+  - base64-bytestring-type
   - bytestring
   - binary
   - cryptonite

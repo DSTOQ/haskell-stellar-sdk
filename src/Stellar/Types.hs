@@ -1,4 +1,5 @@
-{-# LANGUAGE StrictData #-}
+{-# LANGUAGE RecordWildCards #-}
+{-# LANGUAGE StrictData      #-}
 
 module Stellar.Types
   ( module Stellar.Types.Asset
@@ -20,7 +21,7 @@ module Stellar.Types
   , Operation (..)
   , OperationBody (..)
   , OperationType (..)
-  , Hash (..)
+  , Sha256 (..)
   , HomeDomain (..)
   , PathPaymentOp (..)
   , PaymentOp (..)
@@ -41,14 +42,15 @@ module Stellar.Types
 import           Control.Monad            (fail)
 import           Control.Newtype          (Newtype, pack, unpack)
 import qualified Crypto.PubKey.Ed25519    as ED
+import           Data.Aeson               (FromJSON, ToJSON, Value (..),
+                                           parseJSON, toJSON, withObject,
+                                           withText, (.:))
 import           Data.Binary.Extended
-import           Data.Binary.Get          (getByteString, getInt64be,
-                                           getWord32be, getWord64be, label, skip)
+import           Data.Binary.Get          (getInt64be, getWord32be, getWord64be,
+                                           label, skip)
 import           Data.Binary.Put          (putWord32be)
 import qualified Data.ByteArray           as BA
 import qualified Data.ByteString.Extended as BS
-import           Data.StaticText          (Static)
-import qualified Data.StaticText          as S
 import           Data.Word.Extended       (Word32)
 import           Prelude                  (show)
 import           Protolude                hiding (get, put, show)
@@ -57,9 +59,9 @@ import           Stellar.Types.Asset
 import           Stellar.Types.Internal
 import           Stellar.Types.Key
 import           Stellar.Types.Lumen
+import           Stellar.Types.Sha256
 import           Text.Read                (readListPrec, readListPrecDefault,
                                            readPrec)
-
 
 newtype NonNegativeInt64
   = NonNegativeInt64 (Refined NonNegative Int64)
@@ -80,7 +82,7 @@ instance Binary NonNegativeInt64 where
 newtype Threshold
   = Threshold
   { _threshold :: Word32
-  } deriving (Eq, Show)
+  } deriving (Eq, Show, FromJSON, ToJSON)
 
 instance Newtype Threshold Word32 where
   pack = Threshold
@@ -113,6 +115,13 @@ newtype SequenceNumber
   = SequenceNumber
   { _sequenceNumber :: NonNegativeInt64
   } deriving (Eq, Ord, Show, Binary)
+
+instance ToJSON SequenceNumber where
+  toJSON = String . toS . show . unrefine . unpack . unpack
+
+instance FromJSON SequenceNumber where
+  parseJSON = withText "SequenceNumber" $
+    either (fail . show) pure . readEither . toS
 
 instance Read SequenceNumber where
   readPrec = do
@@ -149,8 +158,8 @@ data Memo
   = MemoNone
   | MemoText ByteString
   | MemoId Word64
-  | MemoHash Hash
-  | MemoReturn Hash
+  | MemoHash Sha256
+  | MemoReturn Sha256
   deriving (Eq, Show)
 
 instance Binary Memo where
@@ -172,6 +181,20 @@ data Signer
   { _key    :: SignerKey
   , _weight :: Word32
   } deriving (Eq, Show, Generic)
+
+instance FromJSON Signer where
+  parseJSON = withObject "Signer" $ \o -> do
+    signerType <- o .: "type"
+    _key <- case signerType of
+      SignerKeyTypeEd25519   -> do
+        key <- o .: "key"
+        pk <- either (fail "Invalid Signer Key") pure $ parsePublicKey key
+        return $ SignerKeyEd25519 pk
+      SignerKeyTypePreAuthTx -> SignerKeyPreAuthTx <$> o .: "key"
+      SignerKeyTypeHashX     -> SignerKeyHashX <$> o .: "key"
+    _weight <- o .: "weight"
+    pure $ Signer {..}
+
 
 instance Binary Signer
 
@@ -331,9 +354,9 @@ instance Binary AllowTrustOp where
   get = label "AllowTrustOp" $ do
     trustor <- get
     asset <- get >>= \case
-      XdrAssetTypeNative -> fail "Can't allow trust for a native asset"
-      XdrAssetTypeCreditAlphanum4 -> getAssetCode4
-      XdrAssetTypeCreditAlphanum12 -> getAssetCode12
+      PreciseAssetTypeNative -> fail "Can't allow trust for a native asset"
+      PreciseAssetTypeCreditAlphanum4 -> getAssetCode4
+      PreciseAssetTypeCreditAlphanum12 -> getAssetCode12
     authorize <- fmap unPadded get
     pure $ AllowTrustOp trustor asset authorize
 
@@ -501,7 +524,7 @@ instance Newtype Signature ED.Signature where
 
 instance Show Signature where
   show sig = "Signature {_signature = "
-    <> show (BS.showByteString (BA.convert (unpack sig)))
+    <> show (BS.printByteStringBase16 $ BA.convert $ unpack sig)
     <> "}"
 
 instance Binary Signature where
@@ -533,24 +556,6 @@ instance Binary EnvelopeType where
   -- This enum index starts from 1 unlike all other enum constants!
   get = label "EnvelopeType" $ getWord32be <&> toEnum . pred . fromIntegral
   put = putWord32be . fromIntegral . succ . fromEnum
-
-
-newtype Hash
-  = Hash
-  { _hash :: Static ByteString 32
-  } deriving (Eq)
-
-instance Newtype Hash (Static ByteString 32) where
-  pack = Hash
-  unpack = _hash
-
-instance Show Hash where
-  show (Hash bs) =
-    "Hash {_hash = " <> BS.showByteString (S.unwrap bs) <> "}"
-
-instance Binary Hash where
-  put = putFixLenByteString 32 . S.unwrap . unpack
-  get = label "Hash" $ pack . S.unsafeCreate <$> getByteString 32
 
 
 data Network

@@ -1,12 +1,17 @@
 module Data.ByteString.Extended
   ( module Data.ByteString
-  , showByteString
+  , printByteStringBase16
+  , printByteStringBase64
   ) where
 
-import           Data.ByteString
-import           Data.ByteString.Base16 (encode)
-import           Prelude                (String, show)
-import           Protolude              hiding (show)
+import Data.ByteArray.Encoding (Base (..), convertToBase)
+import Data.ByteString
+import Data.Text.Encoding      (decodeUtf8)
+import Protolude
 
-showByteString :: ByteString -> String
-showByteString = show . unpack . encode
+
+printByteStringBase16 :: ByteString -> Text
+printByteStringBase16 = decodeUtf8 . convertToBase Base16
+
+printByteStringBase64 :: ByteString -> Text
+printByteStringBase64 = decodeUtf8 . convertToBase Base64

@@ -1,24 +1,33 @@
-{-# LANGUAGE StrictData          #-}
+{-# LANGUAGE StrictData #-}
 
 module Stellar.Types.Internal where
 
-import           Control.Monad         (fail)
-import           Crypto.Error          (eitherCryptoError)
-import qualified Crypto.PubKey.Ed25519 as ED
+import           Control.Monad               (fail)
+import           Control.Newtype             (Newtype, pack, unpack)
+import           Crypto.Error                (eitherCryptoError)
+import qualified Crypto.PubKey.Ed25519       as ED
+import           Data.Aeson
 import           Data.Binary.Extended
-import           Data.Binary.Get       (getByteString, getWord32be, skip)
-import           Data.Binary.Put       (putWord32be)
-import qualified Data.ByteArray        as BA
-import qualified Data.ByteString       as BS
-import           Data.Foldable         (length)
+import           Data.Binary.Get             (getByteString, getWord32be, skip)
+import           Data.Binary.Put             (putWord32be)
+import qualified Data.ByteArray              as BA
+import           Data.ByteString.Base64.Type (ByteString64, getByteString64)
+import qualified Data.ByteString.Extended    as BS
+import           Data.Foldable               (length)
+import           GHC.Exts                    (fromList)
 import           GHC.TypeLits
-import           Protolude             hiding (get, put, putByteString)
-
+import           Prelude                     (String, show)
+import           Protolude                   hiding (get, put, putByteString,
+                                              show)
 
 newtype VarLen (n :: Nat) a
   = VarLen
   { unVarLen :: a
   } deriving (Eq, Show)
+
+instance Newtype (VarLen n a) a where
+  pack = VarLen
+  unpack = unVarLen
 
 getVarLen :: forall n a. Binary (VarLen n a) => Proxy n -> Get a
 getVarLen _ = fmap unVarLen (get :: Get (VarLen n a))
@@ -64,11 +73,29 @@ instance (KnownNat n, Binary b) => Binary (VarLen n [b]) where
 
 newtype DataValue
   = DataValue (VarLen 64 ByteString)
-  deriving (Eq, Show, Binary)
+  deriving (Eq, Binary)
 
-mkDataValue :: ByteString -> Maybe DataValue
-mkDataValue bs | BS.length bs <= 64 = Just $ DataValue $ VarLen bs
-mkDataValue _  = Nothing
+instance Newtype DataValue (VarLen 64 ByteString) where
+  pack = DataValue
+  unpack (DataValue vl) = vl
+
+printDataValue :: DataValue -> Text
+printDataValue = BS.printByteStringBase64 . unpack . unpack
+
+instance Show DataValue where
+  show = toS . printDataValue
+
+instance ToJSON DataValue where
+  toJSON v = Object $ fromList [("value", String $ printDataValue v)]
+
+instance FromJSON DataValue where
+  parseJSON = withObject "Data Value" $ \o -> do
+    base64 <- o .: "value"
+    either (fail . show) pure $ mkDataValue $ getByteString64 base64
+
+mkDataValue :: ByteString -> Either String DataValue
+mkDataValue bs | BS.length bs <= 64 = Right $ DataValue $ VarLen bs
+mkDataValue _  = Left "DataValue exceeds 64 bytes"
 
 unDataValue :: DataValue -> ByteString
 unDataValue (DataValue l) = unVarLen l

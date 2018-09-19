@@ -6,19 +6,19 @@ module Stellar.Types.Lumen
   , xlm
   ) where
 
-import           Control.Newtype (Newtype, pack, unpack)
-import           Data.Binary     (Binary)
-import           Protolude
+import Control.Newtype (Newtype, pack, unpack)
+import Data.Aeson      (FromJSON, ToJSON)
+import Data.Binary     (Binary)
+import Protolude
 
 
 newtype Stroop
   = Stroop Int64
-  deriving (Eq, Ord, Show, Enum, Num, Binary)
+  deriving (Eq, Ord, Show, Enum, Num, Binary, Read, FromJSON, ToJSON)
 
 instance Newtype Stroop Int64 where
   pack = Stroop
   unpack (Stroop i) = i
-
 
 newtype XLM
   = XLM Stroop
