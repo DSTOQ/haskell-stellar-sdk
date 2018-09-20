@@ -2,7 +2,7 @@
 {-# LANGUAGE ExplicitForAll            #-}
 {-# LANGUAGE UnicodeSyntax             #-}
 
-module Stellar.TypesSpec where
+module Stellar.Types.BinarySpec where
 
 import           Data.Binary.Extended
 import qualified Data.ByteString.Lazy as BL

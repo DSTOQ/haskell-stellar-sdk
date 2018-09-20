@@ -50,8 +50,13 @@ import           Data.Binary.Get          (getInt64be, getWord32be, getWord64be,
                                            label, skip)
 import           Data.Binary.Put          (putWord32be)
 import qualified Data.ByteArray           as BA
+import           Data.ByteArray.Encoding  (Base (Base64), convertFromBase,
+                                           convertToBase)
 import qualified Data.ByteString.Extended as BS
+import qualified Data.ByteString.Lazy     as BSL
+import qualified Data.Text.Encoding       as TE
 import           Data.Word.Extended       (Word32)
+import           GHC.Exts                 (fromList)
 import           Prelude                  (show)
 import           Protolude                hiding (get, put, show)
 import           Refined
@@ -582,3 +587,18 @@ instance Binary TransactionEnvelope where
   get = label "TransactionEnvelope" $ TransactionEnvelope
     <$> get
     <*> getVarLen (Proxy :: Proxy 20)
+
+instance ToJSON TransactionEnvelope where
+  toJSON txe = Object $ fromList [("transaction_envelope_xdr", String xdr)]
+    where xdr = decodeUtf8 $ convertToBase Base64 $ BSL.toStrict $ encode txe
+
+instance FromJSON TransactionEnvelope where
+  parseJSON = withObject "Transaction Envelope" $ \o -> do
+    xdrB64 <- o .: "transaction_envelope_xdr"
+    let xdrB64bytes = TE.encodeUtf8 xdrB64
+        xdrBytes = convertFromBase Base64 xdrB64bytes
+    either (fail . show) pure (xdrBytes >>= parseBin)
+    where
+      parseBin = bimap thd3 thd3 . decodeOrFail . BSL.fromStrict
+      thd3 :: (a, b, c) -> c
+      thd3 (_, _, c) = c

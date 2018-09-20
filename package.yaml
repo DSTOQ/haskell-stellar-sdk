@@ -93,6 +93,7 @@ tests:
     source-dirs:
     - test
     dependencies:
+    - aeson
     - base >= 4.9 && < 5
     - binary
     - bytestring
