@@ -11,7 +11,7 @@ import           Data.Binary.Extended
 import           Data.Binary.Get             (getByteString, getWord32be, skip)
 import           Data.Binary.Put             (putWord32be)
 import qualified Data.ByteArray              as BA
-import           Data.ByteString.Base64.Type (ByteString64, getByteString64)
+import           Data.ByteString.Base64.Type (getByteString64)
 import qualified Data.ByteString.Extended    as BS
 import           Data.Foldable               (length)
 import           GHC.Exts                    (fromList)

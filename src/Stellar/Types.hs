@@ -31,6 +31,7 @@ module Stellar.Types
   , SequenceNumber (..)
   , unsafeSequenceNumber
   , bumpSequenceNumber
+  , printSequenceNumber
   , Signature (..)
   , Signer (..)
   , TimeBounds (..)
@@ -54,10 +55,10 @@ import           Data.ByteArray.Encoding  (Base (Base64), convertFromBase,
                                            convertToBase)
 import qualified Data.ByteString.Extended as BS
 import qualified Data.ByteString.Lazy     as BSL
+import qualified Data.String              as S
 import qualified Data.Text.Encoding       as TE
 import           Data.Word.Extended       (Word32)
 import           GHC.Exts                 (fromList)
-import           Prelude                  (show)
 import           Protolude                hiding (get, put, show)
 import           Refined
 import           Stellar.Types.Asset
@@ -67,6 +68,7 @@ import           Stellar.Types.Lumen
 import           Stellar.Types.Sha256
 import           Text.Read                (readListPrec, readListPrecDefault,
                                            readPrec)
+import           Text.Show                (show)
 
 newtype NonNegativeInt64
   = NonNegativeInt64 (Refined NonNegative Int64)
@@ -109,7 +111,7 @@ instance Binary Price
 newtype Fee
   = FeeStroops
   { _feeStroops :: Word32
-  } deriving (Eq, Show, Binary)
+  } deriving (Eq, Show, Read, Binary)
 
 instance Newtype Fee Word32 where
   pack = FeeStroops
@@ -119,19 +121,22 @@ instance Newtype Fee Word32 where
 newtype SequenceNumber
   = SequenceNumber
   { _sequenceNumber :: NonNegativeInt64
-  } deriving (Eq, Ord, Show, Binary)
+  } deriving (Eq, Ord, Binary)
 
 instance ToJSON SequenceNumber where
-  toJSON = String . toS . show . unrefine . unpack . unpack
+  toJSON = String . printSequenceNumber
 
 instance FromJSON SequenceNumber where
   parseJSON = withText "SequenceNumber" $
     either (fail . show) pure . readEither . toS
 
+instance Show SequenceNumber where
+  show = printSequenceNumber
+
 instance Read SequenceNumber where
   readPrec = do
     i <- readPrec
-    r <- either (fail . show) pure $ refine i
+    r <- either (const $ fail ". show") pure $ refine i
     pure $ pack $ pack r
   readListPrec = readListPrecDefault
 
@@ -145,6 +150,8 @@ unsafeSequenceNumber = pack . pack . unsafeRefine
 bumpSequenceNumber :: Int64 -> SequenceNumber -> SequenceNumber
 bumpSequenceNumber i = unsafeSequenceNumber . (+ i) . unrefine . unpack . unpack
 
+printSequenceNumber :: StringConv S.String a => SequenceNumber -> a
+printSequenceNumber = toS . show . unrefine . unpack . unpack
 
 data MemoType
   = MemoTypeNone
@@ -253,7 +260,7 @@ instance Binary PathPaymentOp where
 newtype OfferId
   = OfferId
   { _offerId :: Word64
-  } deriving (Eq, Show, Binary)
+  } deriving (Eq, Show, Read, Binary)
 
 instance Newtype OfferId Word64 where
   pack = OfferId
@@ -286,7 +293,7 @@ instance Binary CreatePassiveOfferOp
 newtype HomeDomain
   = HomeDomain
   { _homeDomain :: Text
-  } deriving (Eq, Show)
+  } deriving (Eq, Show, Read)
 
 instance Newtype HomeDomain Text where
   pack = HomeDomain
