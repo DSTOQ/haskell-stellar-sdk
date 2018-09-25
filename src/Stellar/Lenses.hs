@@ -1,7 +1,5 @@
 {-# LANGUAGE TemplateHaskell #-}
-
 module Stellar.Lenses where
-
 
 import Control.Lens.TH
 import Stellar.Types
