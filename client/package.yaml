@@ -1,63 +1,9 @@
-name: stellar-client
+_common/lib: !include "../package-lib.yaml"
+
+name: stellar-sdk-client
 version: 0.1.0.0
-author: DSQ AG
-maintainer: engineering@dstoq.exchange
-copyright: DSQ AG
-github: dstoq/haskell-stellar-core
-
-ghc-options:
-- -Wall
-- -Wcompat
-- -Wincomplete-record-updates
-- -Wincomplete-uni-patterns
-- -Wredundant-constraints
-- -Wimplicit-prelude
-- -Wtabs
-- -Wmissing-local-signatures
-- -fhelpful-errors
-- -fprint-expanded-synonyms
-
-default-extensions:
-- ApplicativeDo
-- BangPatterns
-- ConstraintKinds
-- DataKinds
-- DefaultSignatures
-- DeriveFoldable
-- DeriveFunctor
-- DeriveGeneric
-- DeriveLift
-- DeriveTraversable
-- DerivingStrategies
-- DisambiguateRecordFields
-- DuplicateRecordFields
-- EmptyCase
-- ExistentialQuantification
-- FlexibleContexts
-- FlexibleInstances
-- FunctionalDependencies
-- GADTs
-- GeneralizedNewtypeDeriving
-- InstanceSigs
-- KindSignatures
-- LambdaCase
-- MultiParamTypeClasses
-- MultiWayIf
-- NamedFieldPuns
-- NoImplicitPrelude
-- OverloadedLabels
-- OverloadedStrings
-- PatternSynonyms
-- RankNTypes
-- RecordWildCards
-- ScopedTypeVariables
-- StandaloneDeriving
-- TupleSections
-- TypeApplications
-- TypeFamilies
-- TypeFamilyDependencies
-- TypeOperators
-- ViewPatterns
+<<: *meta
+<<: *defaults
 
 executables:
   stellar-client:
@@ -68,12 +14,10 @@ executables:
     - -rtsopts
     - -with-rtsopts=-N
     dependencies:
-    - base >= 4.9 && < 5
     - lens
     - newtype
-    - stellar-core
-    - stellar-client
-    - protolude
+    - stellar-sdk-core
+    - stellar-sdk-client
     - refined
     - text
     - haskeline
@@ -82,7 +26,6 @@ library:
   source-dirs: src
   dependencies:
     - aeson
-    - base >= 4.9 && < 5
     - binary
     - bytestring
     - base64-bytestring
@@ -96,8 +39,7 @@ library:
     - mtl
     - named
     - newtype
-    - protolude
-    - stellar-core
+    - stellar-sdk-core
     - text
     - transformers
     - transformers-lift

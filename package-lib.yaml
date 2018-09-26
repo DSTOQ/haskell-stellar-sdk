@@ -1,0 +1,66 @@
+- &meta
+  author:
+  - Yuriy Lazarev (https://github.com/Unisay)
+  # Contributors: feel free to add yourself here
+  maintainer: engineering@dstoq.exchange
+  stability: experimental
+  copyright: DSQ AG
+  license: Apache-2.0
+  github: dstoq/haskell-stellar-sdk
+
+- &defaults
+  dependencies:
+  - base
+  - protolude
+  ghc-options:
+  - -Wall
+  - -Wcompat
+  - -Wincomplete-record-updates
+  - -Wincomplete-uni-patterns
+  - -Wredundant-constraints
+  - -Wimplicit-prelude
+  - -Wtabs
+  - -Wmissing-local-signatures
+  - -fhelpful-errors
+  - -fprint-expanded-synonyms
+  default-extensions:
+  - ApplicativeDo
+  - BangPatterns
+  - ConstraintKinds
+  - DataKinds
+  - DefaultSignatures
+  - DeriveFoldable
+  - DeriveFunctor
+  - DeriveGeneric
+  - DeriveLift
+  - DeriveTraversable
+  - DerivingStrategies
+  - DisambiguateRecordFields
+  - DuplicateRecordFields
+  - EmptyCase
+  - ExistentialQuantification
+  - FlexibleContexts
+  - FlexibleInstances
+  - FunctionalDependencies
+  - GADTs
+  - GeneralizedNewtypeDeriving
+  - InstanceSigs
+  - KindSignatures
+  - LambdaCase
+  - MultiParamTypeClasses
+  - MultiWayIf
+  - NamedFieldPuns
+  - NoImplicitPrelude
+  - OverloadedLabels
+  - OverloadedStrings
+  - PatternSynonyms
+  - RankNTypes
+  - RecordWildCards
+  - ScopedTypeVariables
+  - StandaloneDeriving
+  - TupleSections
+  - TypeApplications
+  - TypeFamilies
+  - TypeFamilyDependencies
+  - TypeOperators
+  - ViewPatterns
