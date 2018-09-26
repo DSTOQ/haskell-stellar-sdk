@@ -1,12 +1,9 @@
-name: stellar-core
+name: stellar-core-generators
 version: 0.1.0.0
 author: DSQ AG
 maintainer: engineering@dstoq.exchange
 copyright: DSQ AG
-license: BSD3 # TODO: what is the proper license?
 github: dstoq/haskell-stellar-core
-extra-source-files:
-- README.md
 
 ghc-options:
 - -Wall
@@ -62,51 +59,14 @@ default-extensions:
 library:
   source-dirs: src
   dependencies:
-  - aeson
-  - array
   - base >= 4.9 && < 5
-  - protolude
-  - base64-bytestring
-  - base64-bytestring-type
-  - bytestring
   - binary
   - cryptonite
-  - lens
-  - memory
+  - protolude
+  - hedgehog
   - newtype
   - refined
-  - semigroups
+  - stellar-core
   - static-text
-  - text
   exposed-modules:
-  - Stellar
-  - Stellar.Lenses
-  - Stellar.Crypto
-  - Stellar.Types
-  - Stellar.Types.Key
-  - Stellar.Types.Internal
-  - Data.Binary.Extended
-
-tests:
-  spec:
-    main: Main.hs
-    source-dirs:
-    - test
-    dependencies:
-    - aeson
-    - base >= 4.9 && < 5
-    - binary
-    - bytestring
-    - base64-bytestring
-    - cryptonite
-    - lens
-    - memory
-    - newtype
-    - protolude
-    - refined
-    - stellar-core
-    - static-text
-    - text
-    - hedgehog
-    ghc-options:
-    - -threaded
+  - Stellar.Gens

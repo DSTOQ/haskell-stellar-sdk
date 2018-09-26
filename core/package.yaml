@@ -1,0 +1,115 @@
+name: stellar-core
+version: 0.1.0.0
+author: DSQ AG
+maintainer: engineering@dstoq.exchange
+copyright: DSQ AG
+license-file: LICENSE
+github: dstoq/haskell-stellar-core
+extra-source-files:
+- README.md
+
+ghc-options:
+- -Wall
+- -Wcompat
+- -Wincomplete-record-updates
+- -Wincomplete-uni-patterns
+- -Wredundant-constraints
+- -Wimplicit-prelude
+- -Wtabs
+- -Wmissing-local-signatures
+- -fhelpful-errors
+- -fprint-expanded-synonyms
+
+default-extensions:
+- ApplicativeDo
+- BangPatterns
+- ConstraintKinds
+- DataKinds
+- DefaultSignatures
+- DeriveFoldable
+- DeriveFunctor
+- DeriveGeneric
+- DeriveLift
+- DeriveTraversable
+- DerivingStrategies
+- DisambiguateRecordFields
+- DuplicateRecordFields
+- EmptyCase
+- ExistentialQuantification
+- FlexibleContexts
+- FlexibleInstances
+- FunctionalDependencies
+- GADTs
+- GeneralizedNewtypeDeriving
+- InstanceSigs
+- KindSignatures
+- LambdaCase
+- MultiParamTypeClasses
+- MultiWayIf
+- NamedFieldPuns
+- NoImplicitPrelude
+- OverloadedStrings
+- PatternSynonyms
+- RankNTypes
+- RecordWildCards
+- ScopedTypeVariables
+- StandaloneDeriving
+- TupleSections
+- TypeApplications
+- TypeFamilies
+- TypeFamilyDependencies
+- TypeOperators
+
+library:
+  source-dirs: src
+  dependencies:
+  - aeson
+  - array
+  - base >= 4.9 && < 5
+  - protolude
+  - base64-bytestring
+  - base64-bytestring-type
+  - bytestring
+  - binary
+  - cryptonite
+  - lens
+  - memory
+  - newtype
+  - refined
+  - semigroups
+  - static-text
+  - text
+  exposed-modules:
+  - Stellar
+  - Stellar.Lenses
+  - Stellar.Crypto
+  - Stellar.Types
+  - Stellar.Types.Key
+  - Stellar.Types.Internal
+  - Data.Binary.Extended
+# TODO: extract internal library
+
+tests:
+  spec:
+    main: Main.hs
+    source-dirs:
+    - test
+    dependencies:
+    - aeson
+    - base >= 4.9 && < 5
+    - binary
+    - bytestring
+    - base64-bytestring
+    - cryptonite
+    - lens
+    - memory
+    - newtype
+    - protolude
+    - refined
+    - stellar-core
+    - stellar-core-generators
+    - static-text
+    - text
+    - hedgehog
+    ghc-options:
+    - -threaded
