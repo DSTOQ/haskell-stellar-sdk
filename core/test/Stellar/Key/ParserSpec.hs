@@ -5,7 +5,7 @@ import           Hedgehog.Extended
 import qualified Hedgehog.Gen      as Gen
 import qualified Hedgehog.Range    as Range
 import           Protolude
-import           Stellar.Key.Gens
+import           Stellar.Gens
 import           Stellar.Types.Key
 
 

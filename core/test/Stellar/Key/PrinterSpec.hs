@@ -2,7 +2,7 @@ module Stellar.Key.PrinterSpec where
 
 import Hedgehog
 import Protolude
-import Stellar.Key.Gens
+import Stellar.Gens
 import Stellar.Types.Key
 
 run :: IO Bool
