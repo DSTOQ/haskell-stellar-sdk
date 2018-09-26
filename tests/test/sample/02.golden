@@ -1,0 +1,93 @@
+TransactionEnvelope
+  { _transaction =
+      Transaction
+        { _sourceAccount =
+            GA4IBZJDA2K3JWC3L6XOKJLHCKES63HXVI2XCDN4SZ7FODVNL2QJY6GF
+        , _fee = FeeStroops { _feeStroops = 500 }
+        , _seqNum = 30381378881327023
+        , _timeBounds = Nothing
+        , _memo = MemoNone
+        , _operations =
+            [ Operation
+                { _sourceAccount = Nothing
+                , _body =
+                    ManageOffer
+                      ManageOfferOp
+                        { _selling =
+                            AssetCreditAlphanum
+                              BTC GA77B6GK5K3FH2YJ6I5VJ7VPFZKPBQUX2IIC2MJYAERQTGJI4VOPKRYJ
+                        , _buying = AssetNative
+                        , _amount = NonNegativeInt64 (Refined 290827)
+                        , _price = Price { _numerator = 5025000 , _denominator = 157 }
+                        , _offerId = OfferId { _offerId = 703126 }
+                        }
+                }
+            , Operation
+                { _sourceAccount = Nothing
+                , _body =
+                    ManageOffer
+                      ManageOfferOp
+                        { _selling =
+                            AssetCreditAlphanum
+                              BTC GA77B6GK5K3FH2YJ6I5VJ7VPFZKPBQUX2IIC2MJYAERQTGJI4VOPKRYJ
+                        , _buying = AssetNative
+                        , _amount = NonNegativeInt64 (Refined 290827)
+                        , _price = Price { _numerator = 5125000 , _denominator = 157 }
+                        , _offerId = OfferId { _offerId = 703127 }
+                        }
+                }
+            , Operation
+                { _sourceAccount = Nothing
+                , _body =
+                    ManageOffer
+                      ManageOfferOp
+                        { _selling =
+                            AssetCreditAlphanum
+                              BTC GA77B6GK5K3FH2YJ6I5VJ7VPFZKPBQUX2IIC2MJYAERQTGJI4VOPKRYJ
+                        , _buying = AssetNative
+                        , _amount = NonNegativeInt64 (Refined 290827)
+                        , _price = Price { _numerator = 5225000 , _denominator = 157 }
+                        , _offerId = OfferId { _offerId = 703128 }
+                        }
+                }
+            , Operation
+                { _sourceAccount = Nothing
+                , _body =
+                    ManageOffer
+                      ManageOfferOp
+                        { _selling =
+                            AssetCreditAlphanum
+                              BTC GA77B6GK5K3FH2YJ6I5VJ7VPFZKPBQUX2IIC2MJYAERQTGJI4VOPKRYJ
+                        , _buying = AssetNative
+                        , _amount = NonNegativeInt64 (Refined 290827)
+                        , _price = Price { _numerator = 5325000 , _denominator = 157 }
+                        , _offerId = OfferId { _offerId = 703129 }
+                        }
+                }
+            , Operation
+                { _sourceAccount = Nothing
+                , _body =
+                    ManageOffer
+                      ManageOfferOp
+                        { _selling =
+                            AssetCreditAlphanum
+                              BTC GA77B6GK5K3FH2YJ6I5VJ7VPFZKPBQUX2IIC2MJYAERQTGJI4VOPKRYJ
+                        , _buying = AssetNative
+                        , _amount = NonNegativeInt64 (Refined 290827)
+                        , _price = Price { _numerator = 5425000 , _denominator = 157 }
+                        , _offerId = OfferId { _offerId = 703130 }
+                        }
+                }
+            ]
+        }
+  , _signatures =
+      [ DecoratedSignature
+          { _hint = SignatureHint { _signatureHint = "ad5ea09c" }
+          , _signature =
+              Signature
+                { _signature =
+                    "d99abbc99b4e5e3b0c0ab206909aadb223d3d5e087719f355528469fbca9ee5715f8fb5c2e0400783b97be687c3a1b74aee953463ffce07eb3860c070d4b800f"
+                }
+          }
+      ]
+  }

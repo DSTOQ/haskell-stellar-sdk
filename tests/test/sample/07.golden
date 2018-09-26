@@ -1,0 +1,34 @@
+TransactionEnvelope
+  { _transaction =
+      Transaction
+        { _sourceAccount =
+            GDKLIFHZGGSL24ZWIJHGQB46IL5DHLLI5Q7FV2AHIF42QWEGHOMQTEHL
+        , _fee = FeeStroops { _feeStroops = 100 }
+        , _seqNum = 46373869996474369
+        , _timeBounds = Nothing
+        , _memo = MemoNone
+        , _operations =
+            [ Operation
+                { _sourceAccount = Nothing
+                , _body =
+                    ChangeTrust
+                      ChangeTrustOp
+                        { _line =
+                            AssetCreditAlphanum
+                              HTKN GBV3M224ISSA7WBMISXGW3VV5TA4W6GNYBVGDNXYGOPMVO3RNVW5QBUF
+                        , _limit = NonNegativeInt64 (Refined 9223372036854775807)
+                        }
+                }
+            ]
+        }
+  , _signatures =
+      [ DecoratedSignature
+          { _hint = SignatureHint { _signatureHint = "863b9909" }
+          , _signature =
+              Signature
+                { _signature =
+                    "dba1af876fc7947dbd2ebc049828b33cc847438b2d1bfd39d0b207f780f3387b8b00bc539cab1ef22515b24afdd8bda9d92b5eeda427db78a37c6e23740b8d08"
+                }
+          }
+      ]
+  }

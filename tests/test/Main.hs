@@ -1,5 +1,6 @@
 module Main where
 
+import qualified ClientSpec
 import           Prelude                    (and)
 import           Protolude
 import qualified Stellar.CryptoSpec         as CryptoSpec
@@ -20,4 +21,5 @@ main = unlessM (and <$> sequence specs) exitFailure where
     , CryptoSpec.run
     , ParserSpec.run
     , PrinterSpec.run
+    , ClientSpec.run
     ]

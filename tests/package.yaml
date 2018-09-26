@@ -1,4 +1,4 @@
-name: stellar-hedgehog-generators
+name: stellar-core-tests
 version: 0.1.0.0
 author: DSQ AG
 maintainer: engineering@dstoq.exchange
@@ -48,6 +48,7 @@ default-extensions:
 - OverloadedStrings
 - PatternSynonyms
 - RankNTypes
+- RecordWildCards
 - ScopedTypeVariables
 - StandaloneDeriving
 - TupleSections
@@ -56,17 +57,37 @@ default-extensions:
 - TypeFamilyDependencies
 - TypeOperators
 
-library:
-  source-dirs: src
-  dependencies:
-  - base >= 4.9 && < 5
-  - binary
-  - cryptonite
-  - protolude
-  - hedgehog
-  - newtype
-  - refined
-  - stellar-core
-  - static-text
-  exposed-modules:
-  - Stellar.Gens
+tests:
+  spec:
+    main: Main.hs
+    source-dirs:
+    - test
+    dependencies:
+    - aeson
+    - base >= 4.9 && < 5
+    - binary
+    - bytestring
+    - base64-bytestring
+    - cryptonite
+    - lens
+    - memory
+    - newtype
+    - protolude
+    - refined
+    - stellar-core
+    - stellar-client
+    - stellar-hedgehog-generators
+    - static-text
+    - text
+    - hedgehog
+    - base >= 4.9 && < 5
+    - binary
+    - bytestring
+    - filepath
+    - protolude
+    - pretty-show
+    - tasty
+    - tasty-golden
+    - tasty-hunit
+    ghc-options:
+    - -threaded

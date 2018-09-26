@@ -3,8 +3,8 @@ module Hedgehog.Extended
   , property1
   ) where
 
-import           Hedgehog
-import           Protolude
+import Hedgehog
+import Protolude
 
 
 property1 :: PropertyT IO () -> Property

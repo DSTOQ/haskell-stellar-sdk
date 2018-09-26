@@ -1,0 +1,93 @@
+TransactionEnvelope
+  { _transaction =
+      Transaction
+        { _sourceAccount =
+            GCRSOUMYGNYJO6OMHG3EH542J2RTFKFYPXLBCEBVGGIJOJJWHKK62N6R
+        , _fee = FeeStroops { _feeStroops = 500 }
+        , _seqNum = 46283168877117507
+        , _timeBounds = Nothing
+        , _memo = MemoNone
+        , _operations =
+            [ Operation
+                { _sourceAccount = Nothing
+                , _body =
+                    ManageOffer
+                      ManageOfferOp
+                        { _selling =
+                            AssetCreditAlphanum
+                              CNY GANJGJBGLCWPQGHBDS5AQN2YJ5DVPERFIGTWO7UZFMQSC5VBT3AOGH6P
+                        , _buying = AssetNative
+                        , _amount = NonNegativeInt64 (Refined 80000000)
+                        , _price = Price { _numerator = 2271 , _denominator = 10000 }
+                        , _offerId = OfferId { _offerId = 0 }
+                        }
+                }
+            , Operation
+                { _sourceAccount = Nothing
+                , _body =
+                    ManageOffer
+                      ManageOfferOp
+                        { _selling = AssetNative
+                        , _buying =
+                            AssetCreditAlphanum
+                              USD GANJGJBGLCWPQGHBDS5AQN2YJ5DVPERFIGTWO7UZFMQSC5VBT3AOGH6P
+                        , _amount = NonNegativeInt64 (Refined 60000000)
+                        , _price = Price { _numerator = 2099 , _denominator = 10000 }
+                        , _offerId = OfferId { _offerId = 0 }
+                        }
+                }
+            , Operation
+                { _sourceAccount = Nothing
+                , _body =
+                    ManageOffer
+                      ManageOfferOp
+                        { _selling =
+                            AssetCreditAlphanum
+                              XRP GANJGJBGLCWPQGHBDS5AQN2YJ5DVPERFIGTWO7UZFMQSC5VBT3AOGH6P
+                        , _buying = AssetNative
+                        , _amount = NonNegativeInt64 (Refined 60000000)
+                        , _price = Price { _numerator = 1307 , _denominator = 5000 }
+                        , _offerId = OfferId { _offerId = 0 }
+                        }
+                }
+            , Operation
+                { _sourceAccount = Nothing
+                , _body =
+                    ManageOffer
+                      ManageOfferOp
+                        { _selling = AssetNative
+                        , _buying =
+                            AssetCreditAlphanum
+                              XYG GANJGJBGLCWPQGHBDS5AQN2YJ5DVPERFIGTWO7UZFMQSC5VBT3AOGH6P
+                        , _amount = NonNegativeInt64 (Refined 10000000)
+                        , _price = Price { _numerator = 73 , _denominator = 250 }
+                        , _offerId = OfferId { _offerId = 0 }
+                        }
+                }
+            , Operation
+                { _sourceAccount = Nothing
+                , _body =
+                    ManageOffer
+                      ManageOfferOp
+                        { _selling = AssetNative
+                        , _buying =
+                            AssetCreditAlphanum
+                              XLM GANJGJBGLCWPQGHBDS5AQN2YJ5DVPERFIGTWO7UZFMQSC5VBT3AOGH6P
+                        , _amount = NonNegativeInt64 (Refined 80000000)
+                        , _price = Price { _numerator = 303 , _denominator = 1000 }
+                        , _offerId = OfferId { _offerId = 0 }
+                        }
+                }
+            ]
+        }
+  , _signatures =
+      [ DecoratedSignature
+          { _hint = SignatureHint { _signatureHint = "363a95ed" }
+          , _signature =
+              Signature
+                { _signature =
+                    "75a961867cb7741e29ed240de8bb90ef4929d15eb50bf67510f3f0906eb39184ad8e412bb0272ab4f8b19ea077367084729292decd25f67b0c7067d701ca580b"
+                }
+          }
+      ]
+  }
