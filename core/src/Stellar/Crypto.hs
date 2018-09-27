@@ -9,7 +9,7 @@ import qualified Data.ByteArray        as BA
 import qualified Data.ByteString.Lazy  as LBS
 import qualified Data.StaticText       as S
 import           Protolude             hiding (put)
-import qualified Stellar.Lenses        as L
+import qualified Stellar.Lens          as L
 import           Stellar.Types
 
 

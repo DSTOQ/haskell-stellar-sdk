@@ -1,5 +1,8 @@
 module Stellar.Gens
-  ( genNonNegativeInt64
+  ( genApiBase
+  , genAccountId
+  , genAccountDetails
+  , genNonNegativeInt64
   , genStroop
   , genXLM
   , genEdSecretKey
@@ -40,6 +43,10 @@ module Stellar.Gens
   , genOperationBody
   , genOperation
   , genTransaction
+  , genTransactionId
+  , genTransactionDetails
+  , genCursor
+  , genLedger
   , genSignatureHint
   , genSignature
   , genDecoratedSignature
@@ -60,9 +67,51 @@ import qualified Hedgehog.Gen.Extended  as Gen
 import qualified Hedgehog.Range         as Range
 import           Protolude
 import           Refined
-import           Stellar.Types
+import           Stellar.Client
 import           Stellar.Types.Internal
 import           Text.Show              (show)
+
+genApiBase :: Gen ApiBase
+genApiBase = notImplemented
+
+genAccountId :: Gen AccountId
+genAccountId = AccountId <$> genPublicKey
+
+genThresholds :: Gen Thresholds
+genThresholds = Thresholds
+  <$> genThreshold
+  <*> genThreshold
+  <*> genThreshold
+
+genLiabilities :: Gen Liabilities
+genLiabilities = Liabilities <$> Gen.expInt64 <*> Gen.expInt64
+
+genBalance :: Gen Balance
+genBalance = Balance
+  <$> genStroop
+  <*> genLiabilities
+  <*> Gen.maybe Gen.expInt64
+  <*> genAsset
+
+genAccountFlags :: Gen AccountFlags
+genAccountFlags = AccountFlags <$> Gen.bool <*> Gen.bool
+
+genDataValues :: Gen (Map Text DataValue)
+genDataValues = Gen.map (Range.linear 0 10) genKV
+  where genKV = (,) <$> genKey <*> genDataValue
+        genKey = Gen.text (Range.exponential 1 1000) Gen.ascii
+
+genAccountDetails :: Gen AccountDetails
+genAccountDetails = AccountDetails
+  <$> genAccountId
+  <*> genPublicKey
+  <*> genSequenceNumber
+  <*> Gen.expWord32
+  <*> genThresholds
+  <*> Gen.list (Range.linear 0 10) genBalance
+  <*> genAccountFlags
+  <*> Gen.list (Range.linear 0 5) genSigner
+  <*> genDataValues
 
 genNonNegativeInt64 :: Gen NonNegativeInt64
 genNonNegativeInt64 = do
@@ -268,6 +317,20 @@ genTransaction = Transaction
   <*> Gen.maybe genTimeBounds
   <*> genMemo
   <*> Gen.list (Range.exponential 1 10) genOperation
+
+genTransactionId :: Gen TransactionId
+genTransactionId = TransactionId <$> genSha256
+
+genTransactionDetails :: Gen TransactionDetails
+genTransactionDetails = TransactionDetails
+  <$> genTransactionId
+  <*> genLedger
+
+genCursor :: Gen Cursor
+genCursor = pack <$> Gen.text (Range.linear 1 10) Gen.alphaNum
+
+genLedger :: Gen Ledger
+genLedger = Ledger <$> Gen.expWord64
 
 genSignatureHint :: Gen SignatureHint
 genSignatureHint = pack <$> Gen.expWord32

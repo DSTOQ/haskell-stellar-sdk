@@ -1,17 +1,17 @@
 {-# LANGUAGE StrictData      #-}
 
 module Stellar.Client.Types
-  ( AccountDetails
+  ( AccountDetails (..)
   , AccountId (..)
   , printAccountId
-  , AccountFlags
-  , Balance
+  , AccountFlags (..)
+  , Balance (..)
   , Cursor
   , SortOrder (..)
-  , Liabilities
-  , TransactionDetails
+  , Liabilities (..)
+  , TransactionDetails (..)
   , TransactionId (..)
-  , Thresholds
+  , Thresholds (..)
   , Ledger (..)
   ) where
 
@@ -36,7 +36,7 @@ printAccountId = printPublicKey . unpack
 
 
 data AccountFlags
-  = AccountFlag
+  = AccountFlags
    { _authRequired  :: Bool
    , _authRevocable :: Bool
    } deriving (Eq, Show)
@@ -45,7 +45,7 @@ instance FromJSON AccountFlags where
   parseJSON = withObject "Account Flag" $ \o -> do
     _authRequired  <- o .: "auth_required"
     _authRevocable <- o .: "auth_revocable"
-    return $ AccountFlag {..}
+    return $ AccountFlags {..}
 
 
 data Liabilities
@@ -130,6 +130,10 @@ newtype Cursor
   = Cursor Text
   deriving (Eq, Show, FromJSON, ToHttpApiData)
 
+instance Newtype Cursor Text where
+  unpack (Cursor t) = t
+  pack = Cursor
+
 data SortOrder
   = Ascending | Descending
   deriving (Eq, Show)
@@ -144,7 +148,7 @@ newtype TransactionId
   deriving (Eq, Show, Read, FromJSON)
 
 newtype Ledger
-  = Ledger Int64
+  = Ledger Word64
   deriving (Eq, Show, Read, FromJSON)
 
 data TransactionDetails

@@ -16,6 +16,7 @@ library:
   - newtype
   - refined
   - stellar-sdk-core
+  - stellar-sdk-client
   - static-text
   exposed-modules:
   - Stellar.Gens

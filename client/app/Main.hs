@@ -5,13 +5,13 @@ module Main where
 import           Control.Arrow            (left, (>>>))
 import           Control.Lens             ((^.))
 import           Control.Newtype          (unpack)
+import qualified Data.Text                as T
 import           Protolude
 import           Refined
 import           Stellar
-import qualified Stellar.Lenses as L
+import qualified Stellar.Lens             as L
 import           Stellar.Printer
 import           System.Console.Haskeline
-import qualified Data.Text as T
 
 type REPL = InputT IO
 

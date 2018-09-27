@@ -1,5 +1,5 @@
 {-# LANGUAGE TemplateHaskell #-}
-module Stellar.Lenses where
+module Stellar.Lens where
 
 import Control.Lens.TH
 import Stellar.Types
