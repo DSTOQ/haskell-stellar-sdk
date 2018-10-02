@@ -17,6 +17,7 @@ module Stellar.Types
   , Memo (..)
   , Network (..)
   , OfferId (..)
+  , newOfferId
   , Operation (..)
   , OperationBody (..)
   , OperationType (..)
@@ -269,6 +270,8 @@ instance Newtype OfferId Word64 where
   pack = OfferId
   unpack = _offerId
 
+newOfferId :: OfferId
+newOfferId = pack 0
 
 data ManageOfferOp
   = ManageOfferOp
