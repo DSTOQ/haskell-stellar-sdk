@@ -30,7 +30,7 @@ makeFieldsNoPrefix ''Fee
 makeFieldsNoPrefix ''Price
 makeFieldsNoPrefix ''Asset
 makeFieldsNoPrefix ''AssetCode
-makeFieldsNoPrefix ''Asset
+makeFieldsNoPrefix ''NonNativeAsset
 makeFieldsNoPrefix ''Threshold
 makeFieldsNoPrefix ''SignerKey
 makeFieldsNoPrefix ''PublicKey

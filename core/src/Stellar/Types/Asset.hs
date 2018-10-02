@@ -10,23 +10,27 @@ module Stellar.Types.Asset
   , PreciseAssetType (..)
   , AssetType (..)
   , assetType
+  , NonNativeAsset (..)
   , Asset (..)
+  , assetCata
+  , assetCataM
   ) where
+
+import           Data.Aeson
+import           Data.Binary.Extended
+import           Stellar.Types.Key
 
 import           Control.Monad        (fail)
 import           Control.Newtype      (Newtype, pack, unpack)
-import           Data.Aeson
-import           Data.Binary.Extended
 import           Data.Binary.Get      (Get, getByteString, label)
-import qualified Data.ByteString      as BS
 import           Data.Char            (isAlphaNum, isAscii)
-import qualified Data.Text            as T
 import           Protolude            hiding (get, put, show)
-import           Stellar.Types.Key
-import Text.Read.Extended (Lexeme (Ident), (<++))
-
-import qualified Text.Read.Extended   as R
+import           Text.Read.Extended   (Lexeme (Ident), (<++))
 import           Text.Show            (show)
+
+import qualified Data.ByteString      as BS
+import qualified Data.Text            as T
+import qualified Text.Read.Extended   as R
 
 newtype AssetCode
   = AssetCode
@@ -126,25 +130,39 @@ instance Binary PreciseAssetType where
 assetType :: Asset -> AssetType
 assetType = \case
   AssetNative -> AssetTypeNative
-  AssetCreditAlphanum _ _  -> AssetTypeCreditAlphanum
+  AssetCreditAlphanum _  -> AssetTypeCreditAlphanum
 
+data NonNativeAsset
+  = NonNativeAsset
+  { _assetCode :: AssetCode
+  , _issuer    :: PublicKey
+  } deriving (Eq, Show)
 
 data Asset
   = AssetNative
-  | AssetCreditAlphanum AssetCode PublicKey
+  | AssetCreditAlphanum NonNativeAsset
   deriving (Eq, Show)
 
+assetCata :: Asset -> (() -> a) -> (NonNativeAsset -> a) -> a
+assetCata AssetNative f _               = f ()
+assetCata (AssetCreditAlphanum nna) _ f = f nna
+
+assetCataM :: Monoid m => Asset -> (NonNativeAsset -> m) -> m
+assetCataM = flip assetCata mempty
+
 instance Binary Asset where
-  put AssetNative                   = put PreciseAssetTypeNative
-  put (AssetCreditAlphanum code pk) = putAssetCode code >> put pk
+  put AssetNative =
+    put PreciseAssetTypeNative
+  put (AssetCreditAlphanum (NonNativeAsset code pk)) =
+    putAssetCode code >> put pk
 
   get = label "Asset" $ get >>= \case
     PreciseAssetTypeNative ->
       pure AssetNative
     PreciseAssetTypeCreditAlphanum4 ->
-      AssetCreditAlphanum <$> getAssetCode4 <*> get
+      (AssetCreditAlphanum .). NonNativeAsset <$> getAssetCode4 <*> get
     PreciseAssetTypeCreditAlphanum12 ->
-      AssetCreditAlphanum <$> getAssetCode12 <*> get
+      (AssetCreditAlphanum .). NonNativeAsset <$> getAssetCode12 <*> get
 
 getAssetCode4 :: Get AssetCode
 getAssetCode4 = label "AssetCode (4)"

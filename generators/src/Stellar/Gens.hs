@@ -19,6 +19,7 @@ module Stellar.Gens
   , genAssetCode
   , genAssetType
   , genPreciseAssetType
+  , genNonNativeAsset
   , genAsset
   , genPrice
   , genFee
@@ -167,9 +168,12 @@ genAssetType = Gen.enumBounded
 genPreciseAssetType :: Gen PreciseAssetType
 genPreciseAssetType = Gen.enumBounded
 
+genNonNativeAsset :: Gen NonNativeAsset
+genNonNativeAsset = NonNativeAsset <$> genAssetCode <*> genPublicKey
+
 genAsset :: Gen Asset
 genAsset = Gen.choice
-  [pure AssetNative, AssetCreditAlphanum <$> genAssetCode <*> genPublicKey]
+  [pure AssetNative, AssetCreditAlphanum <$> genNonNativeAsset]
 
 genPrice :: Gen Price
 genPrice = Price <$> Gen.expInt32 <*> Gen.expInt32
