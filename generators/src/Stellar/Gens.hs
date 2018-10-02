@@ -1,7 +1,6 @@
 module Stellar.Gens
-  ( genApiBase
-  , genAccountId
-  , genAccountDetails
+  ( genAccountId
+  , genAccount
   , genNonNegativeInt64
   , genStroop
   , genXLM
@@ -72,11 +71,21 @@ import           Stellar.Client
 import           Stellar.Types.Internal
 import           Text.Show              (show)
 
-genApiBase :: Gen ApiBase
-genApiBase = notImplemented
-
 genAccountId :: Gen AccountId
-genAccountId = AccountId <$> genPublicKey
+genAccountId = unsafeAccountId <$> Gen.element
+  [ "GACGGY434KV54ZGHN7DYMYARP5MAEUHOOTHKFMGBBLGKXMKZ3WULZEIG"
+  , "GAQKLAZ6N2DNT6KJHPV7IVYPSVEKHFGTO3OUS4U5BKTWKTEGHBY52WDX"
+  , "GDSD4HQBHBZ2ONM7KDGYNOOGPSWNUKTHYNZQ23DLP7SOJVVOBUMFLBN5"
+  , "GBLOTNOCLZRTYZ6QPDBYHTMV6TNPRSO3PW3D6MYVRXWGQP6C3XTJTXN4"
+  , "GBCJ6VH3USUSSNNTXKAB4JMZVVWTRT4VJAR7UBQUII2ZWWXLBP7SUXR7"
+  , "GDWVNRC2BF2RHD6XGKQLEEAGJY7AMDLCDN3GEFRAW24HGA5ZO5NULYQ5"
+  , "GCUCMXJGLWUB3CYLXXOL653AKZXAR3YQHKLTXCHFSEMP5INBAYD7MOQE"
+  , "GCTGWMFBY4SPHBM5K5KDIS6Q7F5EHW47SR6JPVYG2XBN7OWUYLS2KOGO"
+  , "GBHIVIIKB7JSFXOSA7OTWWSO542WJRAOVGZAODFU3IYDUWH4MVCWYS3W"
+  , "GBGUXTGFCDPTJRUI3YDT7U6FNZUM7XFJZGVC5C5HLXX6LLH3LRJG4VM5"
+  , "GD4XP2UWXPGRMZHNQM22WV3GI4VMSQZK5Y2SH2HAYTULZ6LWYZWHVA5I"
+  , "GBPUG3KJLDOGW6MDTJ6VTSWJAL4GUZ53DMCE5COSANX34OS67TR4JAEK"
+  ]
 
 genThresholds :: Gen Thresholds
 genThresholds = Thresholds
@@ -102,8 +111,8 @@ genDataValues = Gen.map (Range.linear 0 10) genKV
   where genKV = (,) <$> genKey <*> genDataValue
         genKey = Gen.text (Range.exponential 1 1000) Gen.ascii
 
-genAccountDetails :: Gen AccountDetails
-genAccountDetails = AccountDetails
+genAccount :: Gen Account
+genAccount = Account
   <$> genAccountId
   <*> genPublicKey
   <*> genSequenceNumber

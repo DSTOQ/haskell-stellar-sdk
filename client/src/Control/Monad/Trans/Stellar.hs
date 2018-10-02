@@ -11,7 +11,7 @@ import           Stellar.Client.Types
 
 import           Control.Monad.Catch   (MonadThrow)
 import           Control.Monad.Rest    (ApiBase (..), MonadRest, relativeRes)
-import           Control.Monad.Trans.Rest    (RestT (..), runRestT)
+import           Control.Monad.Trans.Rest    (RestT (..))
 import qualified Control.Monad.Rest    as Rest
 import           Control.Monad.Stellar (MonadStellar (..))
 import           Control.Monad.Trans   (MonadTrans)
@@ -38,8 +38,8 @@ instance Newtype (StellarT m a) (m a) where
   pack = StellarT
 
 instance (MonadIO m, MonadThrow m) => MonadStellar (StellarT (RestT m)) where
-  accountDetails accountId = StellarT . Rest.get $ relativeRes
-    ! #path ["accounts", printAccountId accountId]
+  accountById accountId = StellarT . Rest.get $ relativeRes
+    ! #path ["accounts", toS accountId]
     ! defaults
 
   accountTransactions accountId
@@ -47,7 +47,7 @@ instance (MonadIO m, MonadThrow m) => MonadStellar (StellarT (RestT m)) where
     (argDef #order  Nothing -> order)
     (argDef #limit  Nothing -> limit)
      = StellarT . Rest.get $ relativeRes
-      ! #path ["accounts", printAccountId accountId, "transactions"]
+      ! #path ["accounts", toS accountId, "transactions"]
       ! #query query
       ! defaults
       where

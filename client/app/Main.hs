@@ -112,7 +112,7 @@ repl = do
             { _sourceAccount = Nothing
             , _body = ChangeTrust $ ChangeTrustOp
               { _line = asset
-              , _limit = NonNegativeInt64 $$(refineTH maxBound)
+              , _limit = maxBound
               }
             }
           ]

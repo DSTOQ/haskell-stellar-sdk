@@ -2,7 +2,7 @@
 
 module Control.Monad.Stellar
   ( MonadStellar
-  , accountDetails
+  , accountById
   , accountTransactions
   ) where
 
@@ -16,12 +16,12 @@ import Control.Monad.Trans.RWS    (RWST)
 import Control.Monad.Trans.Writer (WriterT)
 
 class Monad m => MonadStellar m where
-  accountDetails :: AccountId -> m AccountDetails
-  default accountDetails
+  accountById :: AccountId -> m Account
+  default accountById
     :: (MonadTrans t, MonadStellar m1, m ~ t m1)
     => AccountId
-    -> m AccountDetails
-  accountDetails = lift . accountDetails
+    -> m Account
+  accountById = lift . accountById
 
   accountTransactions
     :: AccountId

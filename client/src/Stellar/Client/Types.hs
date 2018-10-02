@@ -1,9 +1,9 @@
 {-# LANGUAGE StrictData      #-}
 
 module Stellar.Client.Types
-  ( AccountDetails (..)
-  , AccountId (..)
-  , printAccountId
+  ( Account (..)
+  , AccountId
+  , unsafeAccountId
   , AccountFlags (..)
   , Balance (..)
   , Cursor
@@ -24,16 +24,14 @@ import Stellar
 import Web.HttpApiData  (ToHttpApiData (..))
 
 newtype AccountId
-  = AccountId PublicKey
+  = AccountId Text
   deriving (Eq, Show, FromJSON, ToJSON)
 
-instance Newtype AccountId PublicKey where
-  pack = AccountId
-  unpack (AccountId pk) = pk
+instance StringConv AccountId Text where
+  strConv _ (AccountId t) = t
 
-printAccountId :: AccountId -> Text
-printAccountId = printPublicKey . unpack
-
+unsafeAccountId :: Text -> AccountId
+unsafeAccountId = AccountId
 
 data AccountFlags
   = AccountFlags
@@ -71,7 +69,7 @@ instance FromJSON Balance where
     let _liabilities = Liabilities buying selling
     limit <- o .:? "limit"
     _limit <- traverse (maybe (fail "Invalid limit") pure  . readMaybe) limit
-    let readCreditAlphanum = AssetCreditAlphanum
+    let readCreditAlphanum = (AssetCreditAlphanum .). NonNativeAsset
           <$> o .: "asset_code"
           <*> o .: "asset_issuer"
     _asset <- o .: "asset_type" >>= \case
@@ -99,8 +97,8 @@ instance FromJSON Thresholds where
     <*> o .: "high_threshold"
 
 
-data AccountDetails
-  = AccountDetails
+data Account
+  = Account
   { _id             :: AccountId
   , _publicKey      :: PublicKey
   , _sequenceNumber :: SequenceNumber
@@ -112,8 +110,8 @@ data AccountDetails
   , _dataValues     :: Map Text DataValue
   } deriving (Eq, Show, Generic)
 
-instance FromJSON AccountDetails where
-  parseJSON = withObject "AccountDetails" $ \o -> do
+instance FromJSON Account where
+  parseJSON = withObject "Account" $ \o -> do
     _id             <- o .: "id"
     _publicKey      <- o .: "account_id"
     _sequenceNumber <- o .: "sequence"
@@ -123,7 +121,7 @@ instance FromJSON AccountDetails where
     _flags          <- o .: "flags"
     _signers        <- o .: "signers"
     _dataValues     <- o .: "data"
-    return AccountDetails {..}
+    return Account {..}
 
 
 newtype Cursor
