@@ -73,6 +73,10 @@ newtype NonNegativeInt64
   = NonNegativeInt64 (Refined NonNegative Int64)
   deriving (Eq, Show, Read)
 
+instance Bounded NonNegativeInt64 where
+  minBound = NonNegativeInt64 $ unsafeRefine 0
+  maxBound = NonNegativeInt64 $ unsafeRefine maxBound
+
 instance Ord NonNegativeInt64 where
   compare a b = unrefine (unpack a) `compare` unrefine (unpack b)
 
