@@ -1,6 +1,8 @@
 module Stellar.Gens
   ( genAccountId
   , genAccount
+  , genBalance
+  , genBalanceTrustline
   , genNonNegativeInt64
   , genStroop
   , genXLM
@@ -58,18 +60,18 @@ module Stellar.Gens
   , KeyParser (..)
   ) where
 
-import           Control.Newtype        (pack)
-import           Crypto.Error           (throwCryptoError)
-import qualified Crypto.PubKey.Ed25519  as ED
-import qualified Data.StaticText        as S
+import           Control.Newtype             (pack)
+import           Crypto.Error                (throwCryptoError)
+import qualified Crypto.PubKey.Ed25519       as ED
+import qualified Data.StaticText             as S
 import           Hedgehog
-import qualified Hedgehog.Gen.Extended  as Gen
-import qualified Hedgehog.Range         as Range
+import qualified Hedgehog.Gen.Extended       as Gen
+import qualified Hedgehog.Range              as Range
 import           Protolude
 import           Refined
 import           Stellar.Client
-import           Stellar.Types.Internal
-import           Text.Show              (show)
+import           Stellar.Core.Types.Internal
+import           Text.Show                   (show)
 
 genAccountId :: Gen AccountId
 genAccountId = unsafeAccountId <$> Gen.element
@@ -94,14 +96,26 @@ genThresholds = Thresholds
   <*> genThreshold
 
 genLiabilities :: Gen Liabilities
-genLiabilities = Liabilities <$> Gen.expInt64 <*> Gen.expInt64
+genLiabilities = Liabilities <$> genNonNegativeInt64 <*> genNonNegativeInt64
+
+genTrustline :: Gen Trustline
+genTrustline = Trustline <$> genNonNativeAsset <*> genNonNegativeInt64
 
 genBalance :: Gen Balance
 genBalance = Balance
-  <$> genStroop
-  <*> genLiabilities
-  <*> Gen.maybe Gen.expInt64
-  <*> genAsset
+  <$> genLiabilities
+  <*> Gen.choice
+      [ Left <$> genStroop
+      , Right <$> ((,) <$> genTrustline <*> genNonNegativeInt64)
+      ]
+
+genBalanceTrustline :: Gen Balance
+genBalanceTrustline = Balance
+  <$> genLiabilities
+  <*> fmap Right genNonNativeBalance
+
+genNonNativeBalance :: Gen (Trustline, NonNegativeInt64)
+genNonNativeBalance = (,) <$> genTrustline <*> genNonNegativeInt64
 
 genAccountFlags :: Gen AccountFlags
 genAccountFlags = AccountFlags <$> Gen.bool <*> Gen.bool

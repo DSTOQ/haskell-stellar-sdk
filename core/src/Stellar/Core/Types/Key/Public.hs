@@ -1,6 +1,6 @@
 {-# LANGUAGE StrictData #-}
 
-module Stellar.Types.Key.Public
+module Stellar.Core.Types.Key.Public
   ( PublicKeyType (..)
   , PublicKey (..)
   , parsePublicKey
@@ -8,22 +8,23 @@ module Stellar.Types.Key.Public
   , Error (..)
   ) where
 
-import           Control.Monad             (fail)
-import           Control.Newtype           (Newtype, pack, unpack)
-import qualified Crypto.Error              as CE
-import qualified Crypto.PubKey.Ed25519     as ED
-import           Data.Aeson                (FromJSON, ToJSON, Value (String),
-                                            parseJSON, toJSON, withText)
+import           Control.Monad                  (fail)
+import           Control.Newtype                (Newtype, pack, unpack)
+import qualified Crypto.Error                   as CE
+import qualified Crypto.PubKey.Ed25519          as ED
+import           Data.Aeson                     (FromJSON, ToJSON,
+                                                 Value (String), parseJSON,
+                                                 toJSON, withText)
 import           Data.Binary.Extended
-import           Data.Binary.Get           (getByteString, label)
-import qualified Data.ByteArray            as BA
-import           Prelude                   (show)
-import           Protolude                 hiding (get, put, show)
-import           Stellar.Types.Key.Parser
-import           Stellar.Types.Key.Printer
-import           Stellar.Types.Key.Version (KeyVersion (AccountId))
-import           Text.Read.Extended        ((<++))
-import qualified Text.Read.Extended        as R
+import           Data.Binary.Get                (getByteString, label)
+import qualified Data.ByteArray                 as BA
+import           Prelude                        (show)
+import           Protolude                      hiding (get, put, show)
+import           Stellar.Core.Types.Key.Parser
+import           Stellar.Core.Types.Key.Printer
+import           Stellar.Core.Types.Key.Version (KeyVersion (AccountId))
+import           Text.Read.Extended             ((<++))
+import qualified Text.Read.Extended             as R
 
 
 data PublicKeyType

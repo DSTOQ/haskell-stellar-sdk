@@ -9,8 +9,8 @@ import qualified Data.ByteArray        as BA
 import qualified Data.ByteString.Lazy  as LBS
 import qualified Data.StaticText       as S
 import           Protolude             hiding (put)
-import qualified Stellar.Lens          as L
-import           Stellar.Types
+import qualified Stellar.Core.Lens     as L
+import           Stellar.Core.Types
 
 
 signTransactionEnvelope

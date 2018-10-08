@@ -1,6 +1,6 @@
 {-# LANGUAGE StrictData #-}
 
-module Stellar.Types.Asset
+module Stellar.Core.Types.Asset
   ( AssetCode
   , makeAssetCode
   , unsafeAssetCode
@@ -18,19 +18,19 @@ module Stellar.Types.Asset
 
 import           Data.Aeson
 import           Data.Binary.Extended
-import           Stellar.Types.Key
+import           Stellar.Core.Types.Key
 
-import           Control.Monad        (fail)
-import           Control.Newtype      (Newtype, pack, unpack)
-import           Data.Binary.Get      (Get, getByteString, label)
-import           Data.Char            (isAlphaNum, isAscii)
-import           Protolude            hiding (get, put, show)
-import           Text.Read.Extended   (Lexeme (Ident), (<++))
-import           Text.Show            (show)
+import           Control.Monad          (fail)
+import           Control.Newtype        (Newtype, pack, unpack)
+import           Data.Binary.Get        (Get, getByteString, label)
+import           Data.Char              (isAlphaNum, isAscii)
+import           Protolude              hiding (get, put, show)
+import           Text.Read.Extended     (Lexeme (Ident), (<++))
+import           Text.Show              (show)
 
-import qualified Data.ByteString      as BS
-import qualified Data.Text            as T
-import qualified Text.Read.Extended   as R
+import qualified Data.ByteString        as BS
+import qualified Data.Text              as T
+import qualified Text.Read.Extended     as R
 
 newtype AssetCode
   = AssetCode

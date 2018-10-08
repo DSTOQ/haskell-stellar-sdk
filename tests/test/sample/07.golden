@@ -15,7 +15,11 @@ TransactionEnvelope
                       ChangeTrustOp
                         { _line =
                             AssetCreditAlphanum
-                              HTKN GBV3M224ISSA7WBMISXGW3VV5TA4W6GNYBVGDNXYGOPMVO3RNVW5QBUF
+                              NonNativeAsset
+                                { _assetCode = HTKN
+                                , _issuer =
+                                    GBV3M224ISSA7WBMISXGW3VV5TA4W6GNYBVGDNXYGOPMVO3RNVW5QBUF
+                                }
                         , _limit = NonNegativeInt64 (Refined 9223372036854775807)
                         }
                 }

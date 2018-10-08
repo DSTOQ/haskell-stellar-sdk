@@ -1,8 +1,8 @@
 {-# LANGUAGE StrictData #-}
 
-module Stellar.Types.Key
-  ( module Stellar.Types.Key.Secret
-  , module Stellar.Types.Key.Public
+module Stellar.Core.Types.Key
+  ( module Stellar.Core.Types.Key.Secret
+  , module Stellar.Core.Types.Key.Public
   , SignatureHint (..)
   , SignerKey (..)
   , SignerKeyType (..)
@@ -13,26 +13,27 @@ module Stellar.Types.Key
   , generateKeyPair
   ) where
 
-import           Control.Monad            (fail)
-import           Control.Newtype          (Newtype, pack, unpack)
-import qualified Crypto.PubKey.Ed25519    as ED
-import           Crypto.Random.Types      (MonadRandom)
-import           Data.Aeson               (FromJSON, ToJSON, Value (String),
-                                           parseJSON, toJSON, withText)
+import           Control.Monad                 (fail)
+import           Control.Newtype               (Newtype, pack, unpack)
+import qualified Crypto.PubKey.Ed25519         as ED
+import           Crypto.Random.Types           (MonadRandom)
+import           Data.Aeson                    (FromJSON, ToJSON,
+                                                Value (String), parseJSON,
+                                                toJSON, withText)
 import           Data.Binary.Extended
-import           Data.Binary.Get          (label)
-import qualified Data.ByteArray           as BA
-import qualified Data.ByteString.Extended as BS
-import           Data.Word.Extended       (Word32, word32FromBytes,
-                                           word32ToBytes)
-import           Prelude                  (show)
-import           Protolude                hiding (get, put, show)
-import           Stellar.Types.Key.Parser
-import           Stellar.Types.Key.Public
-import           Stellar.Types.Key.Secret
-import           Stellar.Types.Sha256
-import           Text.Read.Extended       (Lexeme (Ident))
-import qualified Text.Read.Extended       as R
+import           Data.Binary.Get               (label)
+import qualified Data.ByteArray                as BA
+import qualified Data.ByteString.Extended      as BS
+import           Data.Word.Extended            (Word32, word32FromBytes,
+                                                word32ToBytes)
+import           Prelude                       (show)
+import           Protolude                     hiding (get, put, show)
+import           Stellar.Core.Types.Key.Parser
+import           Stellar.Core.Types.Key.Public
+import           Stellar.Core.Types.Key.Secret
+import           Stellar.Core.Types.Sha256
+import           Text.Read.Extended            (Lexeme (Ident))
+import qualified Text.Read.Extended            as R
 
 
 

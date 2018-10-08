@@ -1,12 +1,12 @@
-module Stellar.Key.ParserSpec where
+module Stellar.Core.Key.ParserSpec where
 
-import qualified Data.Text         as T
+import qualified Data.Text              as T
 import           Hedgehog.Extended
-import qualified Hedgehog.Gen      as Gen
-import qualified Hedgehog.Range    as Range
+import qualified Hedgehog.Gen           as Gen
+import qualified Hedgehog.Range         as Range
 import           Protolude
+import           Stellar.Core.Types.Key
 import           Stellar.Gens
-import           Stellar.Types.Key
 
 
 run :: IO Bool

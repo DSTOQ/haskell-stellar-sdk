@@ -1,8 +1,8 @@
 {-# LANGUAGE TemplateHaskell #-}
-module Stellar.Lens where
+module Stellar.Core.Lens where
 
-import Control.Lens.TH
-import Stellar.Types
+import Control.Lens
+import Stellar.Core.Types
 
 makeFieldsNoPrefix ''TransactionEnvelope
 makeFieldsNoPrefix ''DecoratedSignature
@@ -11,7 +11,6 @@ makeFieldsNoPrefix ''SignatureHint
 makeFieldsNoPrefix ''Transaction
 makeFieldsNoPrefix ''TimeBounds
 makeFieldsNoPrefix ''Operation
-makeFieldsNoPrefix ''OperationBody
 makeFieldsNoPrefix ''ManageDataOp
 makeFieldsNoPrefix ''AllowTrustOp
 makeFieldsNoPrefix ''ChangeTrustOp
@@ -28,7 +27,6 @@ makeFieldsNoPrefix ''Memo
 makeFieldsNoPrefix ''SequenceNumber
 makeFieldsNoPrefix ''Fee
 makeFieldsNoPrefix ''Price
-makeFieldsNoPrefix ''Asset
 makeFieldsNoPrefix ''AssetCode
 makeFieldsNoPrefix ''NonNativeAsset
 makeFieldsNoPrefix ''Threshold
@@ -36,3 +34,9 @@ makeFieldsNoPrefix ''SignerKey
 makeFieldsNoPrefix ''PublicKey
 makeFieldsNoPrefix ''SecretKey
 makeFieldsNoPrefix ''KeyPair
+
+makePrisms ''Asset
+makePrisms ''Memo
+makePrisms ''MemoType
+makePrisms ''OperationBody
+makePrisms ''OperationType

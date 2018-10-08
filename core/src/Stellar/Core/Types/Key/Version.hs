@@ -1,4 +1,4 @@
-module Stellar.Types.Key.Version
+module Stellar.Core.Types.Key.Version
   ( KeyVersion(..)
   , keyVersionByte
   , keyByteVersion

@@ -1,15 +1,15 @@
-module Stellar.Types.Key.Parser where
+module Stellar.Core.Types.Key.Parser where
 
-import           Control.Arrow             (left)
-import           Crypto.Error              (CryptoError, CryptoFailable,
-                                            onCryptoFailure)
-import           Data.ByteArray.Encoding   (Base (Base32), convertFromBase)
-import qualified Data.ByteString.Extended  as BS
-import           Data.Crc16                (crc16xmodem)
-import           Data.Word.Extended        (word16FromBytes)
-import           Prelude                   (String)
+import           Control.Arrow                  (left)
+import           Crypto.Error                   (CryptoError, CryptoFailable,
+                                                 onCryptoFailure)
+import           Data.ByteArray.Encoding        (Base (Base32), convertFromBase)
+import qualified Data.ByteString.Extended       as BS
+import           Data.Crc16                     (crc16xmodem)
+import           Data.Word.Extended             (word16FromBytes)
+import           Prelude                        (String)
 import           Protolude
-import           Stellar.Types.Key.Version (KeyVersion, keyVersionByte)
+import           Stellar.Core.Types.Key.Version (KeyVersion, keyVersionByte)
 
 
 data Error

@@ -1,4 +1,4 @@
-module Stellar.Types.Lumen
+module Stellar.Core.Types.Lumen
   ( XLM (..)
   , Stroop (..)
   , xlmToStroop

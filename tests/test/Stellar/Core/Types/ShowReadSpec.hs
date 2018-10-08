@@ -1,4 +1,4 @@
-module Stellar.Types.ShowReadSpec where
+module Stellar.Core.Types.ShowReadSpec where
 
 import Data.String  (String)
 import Hedgehog

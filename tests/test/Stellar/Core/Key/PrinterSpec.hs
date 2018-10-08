@@ -1,9 +1,9 @@
-module Stellar.Key.PrinterSpec where
+module Stellar.Core.Key.PrinterSpec where
 
 import Hedgehog
 import Protolude
+import Stellar.Core.Types.Key
 import Stellar.Gens
-import Stellar.Types.Key
 
 run :: IO Bool
 run = checkParallel $ Group "Printer Properties"

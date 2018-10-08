@@ -17,7 +17,11 @@ TransactionEnvelope
                             GDL7H6XFWZVIGDUO755TLBCMUCST7Y74HAVMAZIM2IJS3YQK3ZDQX76G
                         , _asset =
                             AssetCreditAlphanum
-                              HTKN GBV3M224ISSA7WBMISXGW3VV5TA4W6GNYBVGDNXYGOPMVO3RNVW5QBUF
+                              NonNativeAsset
+                                { _assetCode = HTKN
+                                , _issuer =
+                                    GBV3M224ISSA7WBMISXGW3VV5TA4W6GNYBVGDNXYGOPMVO3RNVW5QBUF
+                                }
                         , _amount = NonNegativeInt64 (Refined 50000000)
                         }
                 }

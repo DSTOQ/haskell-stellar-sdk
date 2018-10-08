@@ -1,25 +1,29 @@
 module Main where
 
-import qualified ClientSpec
-import           Prelude                    (and)
 import           Protolude
-import qualified Stellar.CryptoSpec         as CryptoSpec
-import qualified Stellar.Key.ParserSpec     as ParserSpec
-import qualified Stellar.Key.PrinterSpec    as PrinterSpec
-import qualified Stellar.Types.BinarySpec   as TypesBinarySpec
-import qualified Stellar.Types.JsonSpec     as TypesJsonSpec
-import qualified Stellar.Types.ShowReadSpec as TypesShowReadSpec
-import           System.Exit                (exitFailure)
+
+import           Prelude                         (and)
+import           System.Exit                     (exitFailure)
+
+import qualified ParsingSpec
+import qualified Stellar.Client.Types.JsonSpec   as ClientJsonSpec
+import qualified Stellar.Core.Key.ParserSpec     as ParserSpec
+import qualified Stellar.Core.Key.PrinterSpec    as PrinterSpec
+import qualified Stellar.Core.Types.BinarySpec   as TypesBinarySpec
+import qualified Stellar.Core.Types.JsonSpec     as CoreJsonSpec
+import qualified Stellar.Core.Types.ShowReadSpec as TypesShowReadSpec
+import qualified Stellar.CryptoSpec              as CryptoSpec
 
 
 main :: IO ()
 main = unlessM (and <$> sequence specs) exitFailure where
   specs =
-    [ TypesJsonSpec.run
+    [ CoreJsonSpec.run
+    , ClientJsonSpec.run
     , TypesBinarySpec.run
     , TypesShowReadSpec.run
     , CryptoSpec.run
     , ParserSpec.run
     , PrinterSpec.run
-    , ClientSpec.run
+    , ParsingSpec.run
     ]

@@ -24,9 +24,9 @@ library:
   - text
   exposed-modules:
   - Stellar
-  - Stellar.Lens
+  - Stellar.Core.Lens
   - Stellar.Crypto
-  - Stellar.Types
-  - Stellar.Types.Internal
-  - Stellar.Types.Key
+  - Stellar.Core.Types
+  - Stellar.Core.Types.Internal
+  - Stellar.Core.Types.Key
   - Data.Binary.Extended

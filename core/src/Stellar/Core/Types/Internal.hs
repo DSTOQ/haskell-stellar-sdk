@@ -1,6 +1,6 @@
 {-# LANGUAGE StrictData #-}
 
-module Stellar.Types.Internal where
+module Stellar.Core.Types.Internal where
 
 import           Control.Monad               (fail)
 import           Control.Newtype             (Newtype, pack, unpack)

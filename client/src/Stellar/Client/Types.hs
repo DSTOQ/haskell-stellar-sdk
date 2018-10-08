@@ -6,6 +6,8 @@ module Stellar.Client.Types
   , unsafeAccountId
   , AccountFlags (..)
   , Balance (..)
+  , Trustline (..)
+  , isTrustline
   , Cursor
   , SortOrder (..)
   , Liabilities (..)
@@ -48,40 +50,60 @@ instance FromJSON AccountFlags where
 
 data Liabilities
   = Liabilities
-  { _buying  :: Int64
-  , _selling :: Int64
+  { _buying  :: NonNegativeInt64
+  , _selling :: NonNegativeInt64
   } deriving (Eq, Show)
 
+
+data Trustline
+  = Trustline
+  { _asset :: NonNativeAsset
+  , _limit :: NonNegativeInt64
+  } deriving (Eq, Show)
+
+instance FromJSON Trustline where
+  parseJSON = withObject "Trustline" $ \o -> do
+    _limit <- parseNonNegativeInt64 o "limit"
+    _asset <- NonNativeAsset <$> o .: "asset_code" <*> o .: "asset_issuer"
+    return $ Trustline {..}
+
+type NonNativeBalance = (Trustline, NonNegativeInt64)
 
 data Balance
   = Balance
-  { _balance     :: Stroop
-  , _liabilities :: Liabilities
-  , _limit       :: Maybe Int64
-  , _asset       :: Asset
+  { _liabilities :: Liabilities
+  , _assetLimit  :: Either Stroop NonNativeBalance
   } deriving (Eq, Show)
+
+isTrustline :: Balance -> Bool
+isTrustline Balance {..} = isRight _assetLimit
 
 instance FromJSON Balance where
   parseJSON = withObject "Balance" $ \o -> do
-    _balance <- Stroop <$> readStellarStupidStringAsInt64 o "balance"
-    buying <- readStellarStupidStringAsInt64 o "buying_liabilities"
-    selling <- readStellarStupidStringAsInt64 o "selling_liabilities"
-    let _liabilities = Liabilities buying selling
-    limit <- o .:? "limit"
-    _limit <- traverse (maybe (fail "Invalid limit") pure  . readMaybe) limit
-    let readCreditAlphanum = (AssetCreditAlphanum .). NonNativeAsset
-          <$> o .: "asset_code"
-          <*> o .: "asset_issuer"
-    _asset <- o .: "asset_type" >>= \case
-      PreciseAssetTypeNative           -> return AssetNative
-      PreciseAssetTypeCreditAlphanum4  -> readCreditAlphanum
-      PreciseAssetTypeCreditAlphanum12 -> readCreditAlphanum
+    _liabilities <- Liabilities
+      <$> parseNonNegativeInt64 o "buying_liabilities"
+      <*> parseNonNegativeInt64 o "selling_liabilities"
+    _assetLimit <- o .: "asset_type" >>= \case
+      PreciseAssetTypeNative -> Left . Stroop <$> parseInt64 o "balance"
+      PreciseAssetTypeCreditAlphanum4  -> Right <$> parseNonNativeBalance o
+      PreciseAssetTypeCreditAlphanum12 -> Right <$> parseNonNativeBalance o
     return Balance {..}
+--
+-- instance ToJSON Balance where
+--   toJSON Balance {..} =
 
-readStellarStupidStringAsInt64 :: Object -> Text -> Parser Int64
-readStellarStupidStringAsInt64 o key = do
+parseNonNativeBalance :: Object  -> Parser NonNativeBalance
+parseNonNativeBalance o = (,)
+  <$> parseJSON (Object o)
+  <*> parseNonNegativeInt64 o "balance"
+
+parseInt64 :: Object -> Text -> Parser Int64
+parseInt64 o key = do
   numStr <- o .: key
   maybe (fail ("Invalid " <> toS key)) pure $ readMaybe $ filter isDigit numStr
+
+parseNonNegativeInt64 :: Object -> Text -> Parser NonNegativeInt64
+parseNonNegativeInt64 = notImplemented
 
 data Thresholds
   = Thresholds
@@ -95,6 +117,13 @@ instance FromJSON Thresholds where
     <$> o .: "low_threshold"
     <*> o .: "med_threshold"
     <*> o .: "high_threshold"
+
+instance ToJSON Thresholds where
+  toJSON Thresholds {..} = object
+    [ "low_threshold"  .= _lowThreshold
+    , "med_threshold"  .= _mediumThreshold
+    , "high_threshold" .= _highThreshold
+    ]
 
 
 data Account
@@ -122,6 +151,19 @@ instance FromJSON Account where
     _signers        <- o .: "signers"
     _dataValues     <- o .: "data"
     return Account {..}
+
+-- instance ToJSON Account where
+--   toJSON Account {..} = object
+--     [ "id" .= _id
+--     , "account_id" .= _publicKey
+--     , "sequence" .= _sequenceNumber
+--     , "subentry_count" .= _subentryCount
+--     , "balances" .= _balances
+--     , "thresholds" .= _thresholds
+--     , "signers" .= _signers
+--     , "data" .= _dataValues
+--     ]
+
 
 
 newtype Cursor

@@ -12,10 +12,10 @@ import qualified Data.ByteString.Lazy    as BSL
 import           Data.Text.Encoding      (encodeUtf8)
 import           Hedgehog
 import           Protolude
+import qualified Stellar.Core.Lens       as L
+import           Stellar.Core.Types
 import           Stellar.Crypto
 import           Stellar.Gens
-import qualified Stellar.Lenses          as L
-import           Stellar.Types
 
 
 run :: IO Bool

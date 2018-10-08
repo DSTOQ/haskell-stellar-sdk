@@ -15,7 +15,11 @@ TransactionEnvelope
                       ManageOfferOp
                         { _selling =
                             AssetCreditAlphanum
-                              BTC GA77B6GK5K3FH2YJ6I5VJ7VPFZKPBQUX2IIC2MJYAERQTGJI4VOPKRYJ
+                              NonNativeAsset
+                                { _assetCode = BTC
+                                , _issuer =
+                                    GA77B6GK5K3FH2YJ6I5VJ7VPFZKPBQUX2IIC2MJYAERQTGJI4VOPKRYJ
+                                }
                         , _buying = AssetNative
                         , _amount = NonNegativeInt64 (Refined 290827)
                         , _price = Price { _numerator = 5025000 , _denominator = 157 }
@@ -29,7 +33,11 @@ TransactionEnvelope
                       ManageOfferOp
                         { _selling =
                             AssetCreditAlphanum
-                              BTC GA77B6GK5K3FH2YJ6I5VJ7VPFZKPBQUX2IIC2MJYAERQTGJI4VOPKRYJ
+                              NonNativeAsset
+                                { _assetCode = BTC
+                                , _issuer =
+                                    GA77B6GK5K3FH2YJ6I5VJ7VPFZKPBQUX2IIC2MJYAERQTGJI4VOPKRYJ
+                                }
                         , _buying = AssetNative
                         , _amount = NonNegativeInt64 (Refined 290827)
                         , _price = Price { _numerator = 5125000 , _denominator = 157 }
@@ -43,7 +51,11 @@ TransactionEnvelope
                       ManageOfferOp
                         { _selling =
                             AssetCreditAlphanum
-                              BTC GA77B6GK5K3FH2YJ6I5VJ7VPFZKPBQUX2IIC2MJYAERQTGJI4VOPKRYJ
+                              NonNativeAsset
+                                { _assetCode = BTC
+                                , _issuer =
+                                    GA77B6GK5K3FH2YJ6I5VJ7VPFZKPBQUX2IIC2MJYAERQTGJI4VOPKRYJ
+                                }
                         , _buying = AssetNative
                         , _amount = NonNegativeInt64 (Refined 290827)
                         , _price = Price { _numerator = 5225000 , _denominator = 157 }
@@ -57,7 +69,11 @@ TransactionEnvelope
                       ManageOfferOp
                         { _selling =
                             AssetCreditAlphanum
-                              BTC GA77B6GK5K3FH2YJ6I5VJ7VPFZKPBQUX2IIC2MJYAERQTGJI4VOPKRYJ
+                              NonNativeAsset
+                                { _assetCode = BTC
+                                , _issuer =
+                                    GA77B6GK5K3FH2YJ6I5VJ7VPFZKPBQUX2IIC2MJYAERQTGJI4VOPKRYJ
+                                }
                         , _buying = AssetNative
                         , _amount = NonNegativeInt64 (Refined 290827)
                         , _price = Price { _numerator = 5325000 , _denominator = 157 }
@@ -71,7 +87,11 @@ TransactionEnvelope
                       ManageOfferOp
                         { _selling =
                             AssetCreditAlphanum
-                              BTC GA77B6GK5K3FH2YJ6I5VJ7VPFZKPBQUX2IIC2MJYAERQTGJI4VOPKRYJ
+                              NonNativeAsset
+                                { _assetCode = BTC
+                                , _issuer =
+                                    GA77B6GK5K3FH2YJ6I5VJ7VPFZKPBQUX2IIC2MJYAERQTGJI4VOPKRYJ
+                                }
                         , _buying = AssetNative
                         , _amount = NonNegativeInt64 (Refined 290827)
                         , _price = Price { _numerator = 5425000 , _denominator = 157 }

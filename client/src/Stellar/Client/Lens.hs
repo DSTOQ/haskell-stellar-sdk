@@ -1,12 +1,7 @@
-{-# LANGUAGE TemplateHaskell #-}
-module Stellar.Client.Lens where
+module Stellar.Client.Lens
+  ( module Stellar.Core.Lens
+  , module Stellar.Client.Lens.Internal
+  ) where
 
-import Control.Lens.TH
-import Stellar.Client.Types
-
-makeFieldsNoPrefix ''Account
-makeFieldsNoPrefix ''AccountFlags
-makeFieldsNoPrefix ''Liabilities
-makeFieldsNoPrefix ''Balance
-makeFieldsNoPrefix ''Thresholds
-makeFieldsNoPrefix ''TransactionDetails
+import Stellar.Client.Lens.Internal
+import Stellar.Core.Lens

@@ -1,7 +1,7 @@
 module Stellar
-  ( module Stellar.Types
+  ( module Stellar.Core.Types
   , module Stellar.Crypto
   ) where
 
+import Stellar.Core.Types
 import Stellar.Crypto
-import Stellar.Types

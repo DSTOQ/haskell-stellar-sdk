@@ -1,4 +1,4 @@
-module Stellar.Types.Sha256 where
+module Stellar.Core.Types.Sha256 where
 
 import           Control.Monad           (fail)
 import           Control.Newtype         (Newtype, pack, unpack)

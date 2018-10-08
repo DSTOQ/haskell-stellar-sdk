@@ -9,7 +9,7 @@ import qualified Data.Text                as T
 import           Protolude
 import           Refined
 import           Stellar
-import qualified Stellar.Lens             as L
+import qualified Stellar.Core.Lens        as L
 import           Stellar.Printer
 import           System.Console.Haskeline
 

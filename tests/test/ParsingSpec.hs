@@ -1,4 +1,4 @@
-module ClientSpec (run) where
+module ParsingSpec (run) where
 
 import qualified Data.ByteString.Lazy       as LBS
 import           Data.ByteString.Lazy.Char8 (pack, unpack)

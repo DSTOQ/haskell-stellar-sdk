@@ -1,9 +1,9 @@
 {-# LANGUAGE StrictData      #-}
 
-module Stellar.Types
-  ( module Stellar.Types.Asset
-  , module Stellar.Types.Key
-  , module Stellar.Types.Lumen
+module Stellar.Core.Types
+  ( module Stellar.Core.Types.Asset
+  , module Stellar.Core.Types.Key
+  , module Stellar.Core.Types.Lumen
   , AllowTrustOp (..)
   , ChangeTrustOp (..)
   , CreateAccountOp (..)
@@ -15,6 +15,7 @@ module Stellar.Types
   , ManageDataOp (..)
   , ManageOfferOp (..)
   , Memo (..)
+  , MemoType (..)
   , Network (..)
   , OfferId (..)
   , newOfferId
@@ -61,11 +62,11 @@ import           Data.Word.Extended       (Word32)
 import           GHC.Exts                 (fromList)
 import           Protolude                hiding (get, put, show)
 import           Refined
-import           Stellar.Types.Asset
-import           Stellar.Types.Internal
-import           Stellar.Types.Key
-import           Stellar.Types.Lumen
-import           Stellar.Types.Sha256
+import           Stellar.Core.Types.Asset
+import           Stellar.Core.Types.Internal
+import           Stellar.Core.Types.Key
+import           Stellar.Core.Types.Lumen
+import           Stellar.Core.Types.Sha256
 import           Text.Read                (readListPrec, readListPrecDefault,
                                            readPrec)
 import           Text.Show                (show)

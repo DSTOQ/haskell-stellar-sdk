@@ -15,7 +15,11 @@ TransactionEnvelope
                       ManageOfferOp
                         { _selling =
                             AssetCreditAlphanum
-                              CNY GANJGJBGLCWPQGHBDS5AQN2YJ5DVPERFIGTWO7UZFMQSC5VBT3AOGH6P
+                              NonNativeAsset
+                                { _assetCode = CNY
+                                , _issuer =
+                                    GANJGJBGLCWPQGHBDS5AQN2YJ5DVPERFIGTWO7UZFMQSC5VBT3AOGH6P
+                                }
                         , _buying = AssetNative
                         , _amount = NonNegativeInt64 (Refined 80000000)
                         , _price = Price { _numerator = 2271 , _denominator = 10000 }
@@ -30,7 +34,11 @@ TransactionEnvelope
                         { _selling = AssetNative
                         , _buying =
                             AssetCreditAlphanum
-                              USD GANJGJBGLCWPQGHBDS5AQN2YJ5DVPERFIGTWO7UZFMQSC5VBT3AOGH6P
+                              NonNativeAsset
+                                { _assetCode = USD
+                                , _issuer =
+                                    GANJGJBGLCWPQGHBDS5AQN2YJ5DVPERFIGTWO7UZFMQSC5VBT3AOGH6P
+                                }
                         , _amount = NonNegativeInt64 (Refined 60000000)
                         , _price = Price { _numerator = 2099 , _denominator = 10000 }
                         , _offerId = OfferId { _offerId = 0 }
@@ -43,7 +51,11 @@ TransactionEnvelope
                       ManageOfferOp
                         { _selling =
                             AssetCreditAlphanum
-                              XRP GANJGJBGLCWPQGHBDS5AQN2YJ5DVPERFIGTWO7UZFMQSC5VBT3AOGH6P
+                              NonNativeAsset
+                                { _assetCode = XRP
+                                , _issuer =
+                                    GANJGJBGLCWPQGHBDS5AQN2YJ5DVPERFIGTWO7UZFMQSC5VBT3AOGH6P
+                                }
                         , _buying = AssetNative
                         , _amount = NonNegativeInt64 (Refined 60000000)
                         , _price = Price { _numerator = 1307 , _denominator = 5000 }
@@ -58,7 +70,11 @@ TransactionEnvelope
                         { _selling = AssetNative
                         , _buying =
                             AssetCreditAlphanum
-                              XYG GANJGJBGLCWPQGHBDS5AQN2YJ5DVPERFIGTWO7UZFMQSC5VBT3AOGH6P
+                              NonNativeAsset
+                                { _assetCode = XYG
+                                , _issuer =
+                                    GANJGJBGLCWPQGHBDS5AQN2YJ5DVPERFIGTWO7UZFMQSC5VBT3AOGH6P
+                                }
                         , _amount = NonNegativeInt64 (Refined 10000000)
                         , _price = Price { _numerator = 73 , _denominator = 250 }
                         , _offerId = OfferId { _offerId = 0 }
@@ -72,7 +88,11 @@ TransactionEnvelope
                         { _selling = AssetNative
                         , _buying =
                             AssetCreditAlphanum
-                              XLM GANJGJBGLCWPQGHBDS5AQN2YJ5DVPERFIGTWO7UZFMQSC5VBT3AOGH6P
+                              NonNativeAsset
+                                { _assetCode = XLM
+                                , _issuer =
+                                    GANJGJBGLCWPQGHBDS5AQN2YJ5DVPERFIGTWO7UZFMQSC5VBT3AOGH6P
+                                }
                         , _amount = NonNegativeInt64 (Refined 80000000)
                         , _price = Price { _numerator = 303 , _denominator = 1000 }
                         , _offerId = OfferId { _offerId = 0 }
